@@ -364,8 +364,8 @@ utils::globalVariables(c(
         paste(
           round(estimate, digits = digits),
           ifelse(
-            !is.na(table$conf.lower) & !is.na(table$conf.upper),
-            paste0('[', round(table$conf.lower, digits = digits), '-', round(table$conf.upper, digits = digits), ']'),
+            !is.na(conf.lower) & !is.na(conf.upper),
+            paste0('[', round(conf.lower, digits = digits), '-', round(conf.upper, digits = digits), ']'),
             ''
           )
         ),
