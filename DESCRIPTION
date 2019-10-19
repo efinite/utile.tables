@@ -15,6 +15,4 @@ Imports: utile.tools (>= 0.2.0),
   rlang,
   survival,
   purrr
-Suggests: 
-    testthat (>= 2.1.0)
 RoxygenNote: 6.1.1
