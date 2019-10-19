@@ -1,10 +1,15 @@
-data_mtcars <- datasets::mtcars %>%
-  dplyr::as_tibble() %>%
-  dplyr::mutate_at(dplyr::vars('vs', 'am'), as.logical) %>%
-  dplyr::mutate_at(dplyr::vars('gear', 'carb', 'cyl'), as.factor)
+data_mtcars <- dplyr::mutate_at(
+  .tbl = dplyr::mutate_at(
+    .tbl = dplyr::as_tibble(datasets::mtcars),
+    .vars = dplyr::vars('vs', 'am'),
+    .funs = as.logical
+  ),
+  .vars = dplyr::vars('gear', 'carb', 'cyl'),
+  .funs = as.factor
+)
 
-test_that("build_row: numeric", {
-  expect_identical(
+testthat::test_that("build_row: numeric", {
+  testthat::expect_identical(
     build_row(label = 'Miles per gallon', col = 'mpg', data = data_mtcars),
     tibble::tibble(
       Variable = 'Miles per gallon, median[IQR]',
@@ -14,9 +19,9 @@ test_that("build_row: numeric", {
   )
 })
 
-test_that("build_row: numeric, by", {
-  expect_warning(
-    expect_identical(
+testthat::test_that("build_row: numeric, by", {
+  testthat::expect_warning(
+    testthat::expect_identical(
       build_row(
         label = 'Miles per gallon',
         col = 'mpg',
@@ -37,8 +42,8 @@ test_that("build_row: numeric, by", {
   )
 })
 
-test_that("build_row: factor", {
-  expect_identical(
+testthat::test_that("build_row: factor", {
+  testthat::expect_identical(
     build_row(label = 'Cylinders', col = 'cyl', data = data_mtcars),
     tibble::tibble(
       Variable = c('Cylinders, n(%)', '  4', '  6', '  8'),
@@ -48,8 +53,8 @@ test_that("build_row: factor", {
   )
 })
 
-test_that("build_row: factor, by", {
-  expect_identical(
+testthat::test_that("build_row: factor, by", {
+  testthat::expect_identical(
     build_row(
       label = 'Cylinders',
       col = 'cyl',
@@ -68,8 +73,8 @@ test_that("build_row: factor, by", {
   )
 })
 
-test_that("build_row: logical", {
-  expect_identical(
+testthat::test_that("build_row: logical", {
+  testthat::expect_identical(
     build_row(label = 'Straight Engine', col = 'vs', data = data_mtcars),
     tibble::tibble(
       Variable = 'Straight Engine, yes, n(%)',
@@ -79,8 +84,8 @@ test_that("build_row: logical", {
   )
 })
 
-test_that("build_row: logical, by", {
-  expect_identical(
+testthat::test_that("build_row: logical, by", {
+  testthat::expect_identical(
     build_row(
       label = 'Straight Engine',
       col = 'vs',
