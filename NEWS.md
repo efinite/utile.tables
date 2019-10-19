@@ -1,5 +1,6 @@
 # utile.tables 0.1.7
 * Added graceful handling of NULL table data to `build_event_row()`.
+* Tables created with `build_event_` now return a unified hazard ratio and confidence interval column for behavior more consistent with `build_row()`/`build_table()`.
 
 # utile.tables 0.1.6
 * Fixed logic in `build_event_row_()` to return the reference table when a parameter is skipped.

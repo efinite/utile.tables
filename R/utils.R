@@ -359,10 +359,16 @@ utils::globalVariables(c(
       Events = utile.tools::paste_freq(
         count = events, total = subjects, percent.sign = percent.sign, digits = digits
       ),
-      HR = round(estimate, digits = digits),
-      `[95%CI]` = ifelse(
-        !is.na(conf.lower) & !is.na(conf.upper),
-        paste0('[', round(conf.lower, digits = digits), '-', round(conf.upper, digits = digits), ']'),
+      `HR [95%CI]` = ifelse(
+        !is.na(estimate),
+        paste(
+          round(estimate, digits = digits),
+          ifelse(
+            !is.na(conf.lower) & !is.na(conf.upper),
+            paste0('[', round(conf.lower, digits = digits), '-', round(conf.upper, digits = digits), ']'),
+            ''
+          )
+        ),
         NA
       ),
       p = ifelse(
