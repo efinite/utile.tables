@@ -352,8 +352,8 @@ build_footer <- function(.table = NULL, cols = NULL, by = NULL, data = NULL, par
       paste0(
         'Tests: ',
         paste(
-          if (test_cat) paste('categorical,', if (parametric) 'Fisher\'s exact test' else 'chi-squared test'),
-          if (test_cont) paste('continuous,', if (parametric) 'Student\'s t-test' else 'Wilcox rank-sum test'),
+          if (test_cat) paste('categorical,', if (parametric) 'Chi-squared test' else 'Fisher\'s exact test'),
+          if (test_cont) paste('continuous,', if (parametric) 'Student\'s t-test' else 'Mann Whitney U & Kruskal-Wallis'),
           sep = '; '
         ),
         '.'

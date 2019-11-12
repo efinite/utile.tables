@@ -1,3 +1,6 @@
+# utile.tables 0.1.8
+* Upgraded backend functions to be compatible with `utile.tools::` version 0.2.3 [BREAKING CHANGE]
+
 # utile.tables 0.1.7
 * Added graceful handling of NULL table data to `build_event_row()`.
 * Tables created with `build_event_` now return a unified hazard ratio and confidence interval column for behavior more consistent with `build_row()`/`build_table()`.

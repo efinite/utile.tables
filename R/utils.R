@@ -21,8 +21,8 @@ utils::globalVariables(c(
         sort(levels(data[[by]])), # Levels to map
         ~ tibble::tibble(
           !!.x := utile.tools::paste_freq(
-            count = dplyr::filter(data, !! rlang::sym(by) == .x), # Rows in level
-            total = # Total rows
+            num = dplyr::filter(data, !! rlang::sym(by) == .x), # Rows in level
+            den = # Total rows
               if (remove.na) dplyr::filter(.data = data, !is.na(!! rlang::sym(by)))
               else data,
             percent.sign = percent.sign,
@@ -54,13 +54,13 @@ utils::globalVariables(c(
   overall_stat <-
     if (!parametric)
       utile.tools::paste_median(
-        col = data[[col]],
+        x = data[[col]],
         less.than.one = less.than.one,
         digits = digits
       )
     else
       utile.tools::paste_mean(
-        col = data[[col]],
+        x = data[[col]],
         less.than.one = less.than.one,
         digits = digits
       )
@@ -81,21 +81,21 @@ utils::globalVariables(c(
             !!x :=
               if (!parametric)
                 utile.tools::paste_median(
-                  col = data_by[[col]],
+                  x = data_by[[col]],
                   less.than.one = less.than.one,
                   digits = digits
                 )
               else
                 utile.tools::paste_mean(
-                  data_by[[col]],
+                  x = data_by[[col]],
                   less.than.one = less.than.one,
                   digits = digits
                 ),
 
             # Stratum missing count
             !!paste0('Missing: ', x) := utile.tools::paste_freq(
-                count = dplyr::filter(.data = data_by, is.na(!! rlang::sym(col))),
-                total = data_by,
+                num = dplyr::filter(.data = data_by, is.na(!! rlang::sym(col))),
+                den = data_by,
                 percent.sign = percent.sign,
                 digits = digits
               )
@@ -104,9 +104,9 @@ utils::globalVariables(c(
       ),
 
       # Strata test
-      Probability = utile.tools::test_numeric(
-        col = col, by = by, parametric = parametric,
-        data = data, digits = digits, p.digits = p.digits
+      Probability = utile.tools::test_hypothesis(
+        x = data[[col]], y = data[[by]], parametric = parametric,
+        digits = digits, p.digits = p.digits
       ),
 
       # Strata test labels
@@ -121,8 +121,8 @@ utils::globalVariables(c(
       Variable = label,
       Overall = overall_stat,
       Missing = utile.tools::paste_freq(
-        count = dplyr::filter(data, is.na(!! rlang::sym(col))),
-        total = data,
+        num = dplyr::filter(data, is.na(!! rlang::sym(col))),
+        den = data,
         percent.sign = percent.sign,
         digits = digits
       )
@@ -160,8 +160,8 @@ utils::globalVariables(c(
               data_by <- dplyr::filter(data, !! rlang::sym(by) == x) # Stratum subset
               tibble::tibble(
                 !!paste0('Missing: ', x) := utile.tools::paste_freq(
-                  count = dplyr::filter(.data = data_by, is.na(!! rlang::sym(col))),
-                  total = data_by,
+                  num = dplyr::filter(.data = data_by, is.na(!! rlang::sym(col))),
+                  den = data_by,
                   percent.sign = percent.sign,
                   digits = digits
                 )
@@ -171,9 +171,9 @@ utils::globalVariables(c(
 
           # Strata tests
           tibble::tibble(
-            Probability = utile.tools::test_factor(
-              col = col, by = by, parametric = parametric,
-              data = data, digits = digits, p.digits = p.digits
+            Probability = utile.tools::test_hypothesis(
+              x = data[[col]], y = data[[by]], parametric = parametric,
+              digits = digits, p.digits = p.digits
             )
           ),
 
@@ -187,8 +187,8 @@ utils::globalVariables(c(
       else
         tibble::tibble(
           Missing = utile.tools::paste_freq(
-            count = dplyr::filter(data, is.na(!! rlang::sym(col))),
-            total = data,
+            num = dplyr::filter(data, is.na(!! rlang::sym(col))),
+            den = data,
             percent.sign = percent.sign,
             digits = digits
           )
@@ -206,8 +206,8 @@ utils::globalVariables(c(
           # Overall counts
           Variable = paste0('  ', x),
           Overall = utile.tools::paste_freq(
-            count = data_level,
-            total =
+            num = data_level,
+            den =
               if (remove.na)
                 dplyr::filter(.data = data, !is.na(!! rlang::sym(col)))
               else data,
@@ -222,8 +222,8 @@ utils::globalVariables(c(
               function (y) {
                 tibble::tibble(
                   !!y := utile.tools::paste_freq(
-                    count = dplyr::filter(data_level, !! rlang::sym(by) == y),
-                    total =
+                    num = dplyr::filter(data_level, !! rlang::sym(by) == y),
+                    den =
                       if (remove.na)
                         dplyr::filter(data, !! rlang::sym(by) == y & !is.na(!! rlang::sym(col)))
                     else dplyr::filter(data, !! rlang::sym(by) == y),
@@ -264,8 +264,8 @@ utils::globalVariables(c(
 
   # Overall statistic
   overall_stat <- utile.tools::paste_freq(
-    count = data_subset,
-    total =
+    num = data_subset,
+    den =
       if (remove.na) dplyr::filter(.data = data, !is.na(!! rlang::sym(col)))
     else data,
     percent.sign = percent.sign,
@@ -286,8 +286,8 @@ utils::globalVariables(c(
 
             # Stratum statistic
             !!x := utile.tools::paste_freq(
-              count = dplyr::filter(data_subset, !! rlang::sym(by) == x),
-              total =
+              num = dplyr::filter(data_subset, !! rlang::sym(by) == x),
+              den =
                 if (remove.na)
                   dplyr::filter(.data = data_by, !is.na(!! rlang::sym(col)))
                 else data_by,
@@ -297,8 +297,8 @@ utils::globalVariables(c(
 
             # Stratum missing count
             !!paste0('Missing: ', x) := utile.tools::paste_freq(
-              count = dplyr::filter(.data = data_by, is.na(!! rlang::sym(col))),
-              total = data_by,
+              num = dplyr::filter(.data = data_by, is.na(!! rlang::sym(col))),
+              den = data_by,
               percent.sign = percent.sign,
               digits = digits
             )
@@ -308,9 +308,9 @@ utils::globalVariables(c(
       ),
 
       # Strata test
-      Probability = utile.tools::test_factor(
-        col = col, by = by, parametric = parametric,
-        data = data, digits = digits, p.digits = p.digits
+      Probability = utile.tools::test_hypothesis(
+        x = data[[col]], y = data[[by]], parametric = parametric,
+        digits = digits, p.digits = p.digits
       ),
 
       # Strata test labels
@@ -326,8 +326,8 @@ utils::globalVariables(c(
       Variable = label,
       Overall = overall_stat,
       Missing = utile.tools::paste_freq(
-        count = dplyr::filter(data, is.na(!! rlang::sym(col))),
-        total = data,
+        num = dplyr::filter(data, is.na(!! rlang::sym(col))),
+        den = data,
         percent.sign = percent.sign,
         digits = digits
       )
@@ -357,7 +357,7 @@ utils::globalVariables(c(
       ),
       Subjects = subjects,
       Events = utile.tools::paste_freq(
-        count = events, total = subjects, percent.sign = percent.sign, digits = digits
+        num = events, den = subjects, percent.sign = percent.sign, digits = digits
       ),
       `HR [95%CI]` = ifelse(
         !is.na(estimate),
