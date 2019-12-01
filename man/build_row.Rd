@@ -4,10 +4,23 @@
 \alias{build_row}
 \title{build_row}
 \usage{
-build_row(.table = NULL, label = NULL, col = NULL, by = NULL,
-  data = NULL, parametric = FALSE, inverse = FALSE, indent = FALSE,
-  percent.sign = TRUE, less.than.one = FALSE, remove.na = TRUE,
-  label.stats = TRUE, digits = 1, p.digits = 4, ...)
+build_row(
+  .table = NULL,
+  label = NULL,
+  col = NULL,
+  by = NULL,
+  data = NULL,
+  parametric = FALSE,
+  inverse = FALSE,
+  indent = FALSE,
+  percent.sign = TRUE,
+  less.than.one = FALSE,
+  remove.na = TRUE,
+  label.stats = TRUE,
+  digits = 1,
+  p.digits = 4,
+  ...
+)
 }
 \arguments{
 \item{.table}{Optional. Tibble. A tibble to append row data to.}

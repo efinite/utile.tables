@@ -4,8 +4,13 @@
 \alias{build_footer}
 \title{build_footer}
 \usage{
-build_footer(.table = NULL, cols = NULL, by = NULL, data = NULL,
-  parametric = FALSE)
+build_footer(
+  .table = NULL,
+  cols = NULL,
+  by = NULL,
+  data = NULL,
+  parametric = FALSE
+)
 }
 \arguments{
 \item{.table}{Optional. Tibble. A tibble to append row to.}

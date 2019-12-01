@@ -4,10 +4,21 @@
 \alias{build_table}
 \title{build_table}
 \usage{
-build_table(data = NULL, by = NULL, cols = NULL, skip = NULL,
-  digits = 1, percent.sign = FALSE, less.than.one = FALSE,
-  inverse = FALSE, indent = FALSE, parametric = FALSE,
-  footer.stats = FALSE, p.digits = 4, remove.na = TRUE)
+build_table(
+  data = NULL,
+  by = NULL,
+  cols = NULL,
+  skip = NULL,
+  digits = 1,
+  percent.sign = FALSE,
+  less.than.one = FALSE,
+  inverse = FALSE,
+  indent = FALSE,
+  parametric = FALSE,
+  footer.stats = FALSE,
+  p.digits = 4,
+  remove.na = TRUE
+)
 }
 \arguments{
 \item{data}{Required. Tibble. Contains data to be summarized.}

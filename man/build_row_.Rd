@@ -4,10 +4,20 @@
 \alias{build_row_}
 \title{build_row_}
 \usage{
-build_row_(by = NULL, data.default = NULL, digits = 1,
-  percent.sign = FALSE, inverse = FALSE, indent = FALSE,
-  less.than.one = FALSE, label.stats = TRUE, parametric = FALSE,
-  p.digits = 4, remove.na = TRUE, ...)
+build_row_(
+  by = NULL,
+  data.default = NULL,
+  digits = 1,
+  percent.sign = FALSE,
+  inverse = FALSE,
+  indent = FALSE,
+  less.than.one = FALSE,
+  label.stats = TRUE,
+  parametric = FALSE,
+  p.digits = 4,
+  remove.na = TRUE,
+  ...
+)
 }
 \arguments{
 \item{by}{Optional. Character or Quosure. Name of factor or logical column to stratify by

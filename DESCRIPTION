@@ -15,4 +15,4 @@ Imports: utile.tools (>= 0.2.3),
   rlang,
   survival,
   purrr
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.1

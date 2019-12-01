@@ -4,8 +4,7 @@
 \alias{build_event_table}
 \title{build_event_table}
 \usage{
-build_event_table(fit, data, cols, skip, mv, percent.sign, digits,
-  p.digits)
+build_event_table(fit, data, cols, skip, mv, percent.sign, digits, p.digits)
 }
 \arguments{
 \item{fit}{Required. Formula, survival::survfit(), survival::coxph(). The formula

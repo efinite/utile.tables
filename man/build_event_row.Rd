@@ -4,9 +4,16 @@
 \alias{build_event_row}
 \title{build_event_row}
 \usage{
-build_event_row(.table = NULL, label = NULL, col = NULL,
-  fit = NULL, percent.sign = TRUE, digits = 1, p.digits = 4,
-  indent = FALSE)
+build_event_row(
+  .table = NULL,
+  label = NULL,
+  col = NULL,
+  fit = NULL,
+  percent.sign = TRUE,
+  digits = 1,
+  p.digits = 4,
+  indent = FALSE
+)
 }
 \arguments{
 \item{.table}{Optional. Tibble. A tibble for row to be appended.}
