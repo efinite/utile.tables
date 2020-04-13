@@ -340,45 +340,58 @@ utils::globalVariables(c(
   # Hard stop
   if (is.null(fit) | class(fit) != 'coxph') stop('Missing valid coxph object. [check: fit]')
 
-  model_table <- utile.tools::tabulate_model(fit = fit, format = FALSE)
+  model_table <- utile.tools::tabulate_coef(fit = fit, format = FALSE)
 
-  dplyr::mutate_all(
-    dplyr::transmute(
-      .data = dplyr::filter(model_table, variable == col),
-      Variable = purrr::map2_chr(
-        variable, level,
-        function(x, y)
-          if (!is.na(y)) {
-            if (nrow(model_table[model_table$variable == x,]) == 1)
-              paste(if (!is.null(label)) label else x, y, sep = ', ')
-            else paste0('   ', y)
-          } else if (!is.null(label)) label
-          else x
-      ),
-      Subjects = subjects,
-      Events = utile.tools::paste_freq(
-        num = events, den = subjects, percent.sign = percent.sign, digits = digits
-      ),
-      `HR [95%CI]` = ifelse(
-        !is.na(estimate),
-        paste(
-          round(estimate, digits = digits),
-          ifelse(
-            !is.na(conf.lower) & !is.na(conf.upper),
-            paste0('[', round(conf.lower, digits = digits), '-', round(conf.upper, digits = digits), ']'),
-            ''
-          )
-        ),
-        NA
-      ),
-      p = ifelse(
-        !is.na(p),
-        format.pval(pv = p, digits = digits, eps = 0.0001, nsmall = p.digits, scientific = F),
-        NA
-      )
+  # Identify reference rows
+  has_levels <- 'level' %in% names(model_table)
+  if (has_levels) ref_rows <- !is.na(model_table$level) & is.na(model_table$estimate)
+
+  # Transmute model_table
+  res <- dplyr::bind_cols(
+
+    # Variable
+    Variable = purrr::map2_chr(
+      model_table$variable, if (has_levels) model_table$level else NA,
+      ~ if (!is.na(.y)) {
+        if (nrow(model_table[model_table$variable == .x,]) == 1)
+          paste(if (!is.null(label)) label else .x, .y, sep = ', ')
+        else paste0('   ', .y)
+      } else if (!is.null(label)) label
+      else .x
     ),
-    as.character
+
+    # Subjects
+    Subjects = as.character(model_table$subjects),
+
+    # Events
+    Events = utile.tools::paste_freq(
+      num = model_table$events, den = model_table$subjects,
+      percent.sign = percent.sign, digits = digits
+    ),
+
+    # HR
+    `HR [95%CI]` = dplyr::if_else(
+      !is.na(model_table$estimate),
+      paste(
+        round(model_table$estimate, digits = digits),
+        dplyr::if_else(
+          !is.na(model_table$conf.low) & !is.na(model_table$conf.high),
+          paste0('[', round(model_table$conf.low, digits = digits), '-', round(model_table$conf.high, digits = digits), ']'),
+          ''
+        )
+      ),
+      as.character(NA)
+    ),
+
+    # Format p-value
+    p = format.pval(pv = model_table$p, digits = digits, eps = 0.0001, nsmall = p.digits, scientific = F, na.form = '')
   )
+
+  # Set reference row placeholders
+  if (has_levels) res[ref_rows, 'HR [95%CI]'] <- 'Reference'
+
+  # Return results
+  res
 
 }
 
@@ -419,3 +432,4 @@ utils::globalVariables(c(
 
 # Make NA's human readable
 .replace_na <- function(x) replace(x, is.na(x), '')
+
