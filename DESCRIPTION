@@ -1,6 +1,6 @@
 Package: utile.tables
 Title: Build Tables for Publication
-Version: 0.1.8
+Version: 0.2.0
 Authors@R: c(person('Eric', 'Finnesgard', email = 'finnesgard.eric@mayo.edu', role = c('aut', 'cre')), person('Jennifer', 'Grauberger', email = 'grauberger.jennifer@mayo.edu', role = c('aut')))
 Description: A collection of functions to make building customized ready-to-export tables for publication purposes easier and creating summaries of large datasets for review a breeze. Includes methods for automatically building a table from data or building the table row-by-row.
 License: LGPL (>= 2)
@@ -15,4 +15,4 @@ Imports: utile.tools (>= 0.3.0),
   rlang,
   survival,
   purrr
-RoxygenNote: 7.0.1
+RoxygenNote: 7.1.0
