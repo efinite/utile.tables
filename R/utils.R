@@ -21,8 +21,8 @@ utils::globalVariables(c(
         sort(levels(data[[by]])), # Levels to map
         ~ tibble::tibble(
           !!.x := utile.tools::paste_freq(
-            num = dplyr::filter(data, !! rlang::sym(by) == .x), # Rows in level
-            den = # Total rows
+            x = dplyr::filter(data, !! rlang::sym(by) == .x), # Rows in level
+            y = # Total rows
               if (remove.na) dplyr::filter(.data = data, !is.na(!! rlang::sym(by)))
               else data,
             percent.sign = percent.sign,
@@ -94,8 +94,8 @@ utils::globalVariables(c(
 
             # Stratum missing count
             !!paste0('Missing: ', x) := utile.tools::paste_freq(
-                num = dplyr::filter(.data = data_by, is.na(!! rlang::sym(col))),
-                den = data_by,
+                x = dplyr::filter(.data = data_by, is.na(!! rlang::sym(col))),
+                y = data_by,
                 percent.sign = percent.sign,
                 digits = digits
               )
@@ -121,8 +121,8 @@ utils::globalVariables(c(
       Variable = label,
       Overall = overall_stat,
       Missing = utile.tools::paste_freq(
-        num = dplyr::filter(data, is.na(!! rlang::sym(col))),
-        den = data,
+        x = dplyr::filter(data, is.na(!! rlang::sym(col))),
+        y = data,
         percent.sign = percent.sign,
         digits = digits
       )
@@ -160,8 +160,8 @@ utils::globalVariables(c(
               data_by <- dplyr::filter(data, !! rlang::sym(by) == x) # Stratum subset
               tibble::tibble(
                 !!paste0('Missing: ', x) := utile.tools::paste_freq(
-                  num = dplyr::filter(.data = data_by, is.na(!! rlang::sym(col))),
-                  den = data_by,
+                  x = dplyr::filter(.data = data_by, is.na(!! rlang::sym(col))),
+                  y = data_by,
                   percent.sign = percent.sign,
                   digits = digits
                 )
@@ -187,8 +187,8 @@ utils::globalVariables(c(
       else
         tibble::tibble(
           Missing = utile.tools::paste_freq(
-            num = dplyr::filter(data, is.na(!! rlang::sym(col))),
-            den = data,
+            x = dplyr::filter(data, is.na(!! rlang::sym(col))),
+            y = data,
             percent.sign = percent.sign,
             digits = digits
           )
@@ -206,8 +206,8 @@ utils::globalVariables(c(
           # Overall counts
           Variable = paste0('  ', x),
           Overall = utile.tools::paste_freq(
-            num = data_level,
-            den =
+            x = data_level,
+            y =
               if (remove.na)
                 dplyr::filter(.data = data, !is.na(!! rlang::sym(col)))
               else data,
@@ -222,8 +222,8 @@ utils::globalVariables(c(
               function (y) {
                 tibble::tibble(
                   !!y := utile.tools::paste_freq(
-                    num = dplyr::filter(data_level, !! rlang::sym(by) == y),
-                    den =
+                    x = dplyr::filter(data_level, !! rlang::sym(by) == y),
+                    y =
                       if (remove.na)
                         dplyr::filter(data, !! rlang::sym(by) == y & !is.na(!! rlang::sym(col)))
                     else dplyr::filter(data, !! rlang::sym(by) == y),
@@ -264,8 +264,8 @@ utils::globalVariables(c(
 
   # Overall statistic
   overall_stat <- utile.tools::paste_freq(
-    num = data_subset,
-    den =
+    x = data_subset,
+    y =
       if (remove.na) dplyr::filter(.data = data, !is.na(!! rlang::sym(col)))
     else data,
     percent.sign = percent.sign,
@@ -286,8 +286,8 @@ utils::globalVariables(c(
 
             # Stratum statistic
             !!x := utile.tools::paste_freq(
-              num = dplyr::filter(data_subset, !! rlang::sym(by) == x),
-              den =
+              x = dplyr::filter(data_subset, !! rlang::sym(by) == x),
+              y =
                 if (remove.na)
                   dplyr::filter(.data = data_by, !is.na(!! rlang::sym(col)))
                 else data_by,
@@ -297,8 +297,8 @@ utils::globalVariables(c(
 
             # Stratum missing count
             !!paste0('Missing: ', x) := utile.tools::paste_freq(
-              num = dplyr::filter(.data = data_by, is.na(!! rlang::sym(col))),
-              den = data_by,
+              x = dplyr::filter(.data = data_by, is.na(!! rlang::sym(col))),
+              y = data_by,
               percent.sign = percent.sign,
               digits = digits
             )
@@ -326,8 +326,8 @@ utils::globalVariables(c(
       Variable = label,
       Overall = overall_stat,
       Missing = utile.tools::paste_freq(
-        num = dplyr::filter(data, is.na(!! rlang::sym(col))),
-        den = data,
+        x = dplyr::filter(data, is.na(!! rlang::sym(col))),
+        y = data,
         percent.sign = percent.sign,
         digits = digits
       )
@@ -365,7 +365,7 @@ utils::globalVariables(c(
 
     # Events
     Events = utile.tools::paste_freq(
-      num = model_table$events, den = model_table$subjects,
+      x = model_table$events, y = model_table$subjects,
       percent.sign = percent.sign, digits = digits
     ),
 
