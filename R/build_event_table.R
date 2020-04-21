@@ -13,8 +13,6 @@ utils::globalVariables(c(
 #' @param cols Optional. Character. Columns to use as predictors in time-to-event model.
 #' Defaults to all usable columns in \'data\'.
 #' @param skip Optional. Character. Names of columns to skip as part of predictor testing.
-#' @param mv Optional. Logical. Indicates provided \'cols\' should be tested as part of one
-#' multi-variate model. Defaults to FALSE (univariate; seperate models).
 #' @param percent.sign Optional. Logical. Indicates percent sign should be printed
 #' for frequencies. Defaults to TRUE.
 #' @param digits Optional. Integer. Number of digits to round numerics to. Defaults to 1.
@@ -32,19 +30,15 @@ utils::globalVariables(c(
 #'
 #' # Automatically model each parameter
 #' build_event_table(Surv(time, status) ~ 1, skip = 'inst', data = data_lung)
-#'
-#' # Automatically model all parameters together
-#' build_event_table(Surv(time, status) ~ 1, skip = 'inst', mv = TRUE, data = data_lung)
 #' @export
-build_event_table <- function(fit, data, cols, skip, mv, percent.sign, digits, p.digits) {
+build_event_table <- function(fit, data, cols, skip, percent.sign, digits, p.digits) {
   UseMethod('build_event_table')
 }
 
 
 .build_event_table <- function(
   fit = NULL, data = NULL, cols = NULL,
-  skip = NULL, mv = FALSE, percent.sign = TRUE,
-  digits = 2, p.digits = 4
+  skip = NULL, percent.sign = TRUE, digits = 2, p.digits = 4
 ) {
 
   fit_vars <- all.vars(fit)
@@ -77,13 +71,10 @@ build_event_table <- function(fit, data, cols, skip, mv, percent.sign, digits, p
         col = col,
         fit = survival::coxph(
           stats::as.formula(
-            paste0(
-              c(
-                deparse(fit), # important: resets environment
-                if (mv) paste(cols, collapse = ' + ')
-                else col
-              ),
-              collapse = ' + '
+            paste(
+              deparse(fit), # important: resets environment
+              col,
+              sep = ' + '
             )
           ),
           data = data,
@@ -107,7 +98,7 @@ build_event_table.formula <- .build_event_table
 #' @export
 build_event_table.coxph <- function(
   fit = NULL, data = NULL, cols = NULL,
-  skip = NULL, mv = FALSE, percent.sign = TRUE,
+  skip = NULL, percent.sign = TRUE,
   digits = 2, p.digits = 4
 ) {
   # Seperate data and formula from survival object
@@ -116,7 +107,7 @@ build_event_table.coxph <- function(
 
   .build_event_table(
     fit = fit, data = data,cols = cols,
-    skip = skip, mv = mv, percent.sign = percent.sign,
+    skip = skip, percent.sign = percent.sign,
     digits = digits, p.digits = p.digits
   )
 }

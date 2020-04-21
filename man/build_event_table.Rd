@@ -4,7 +4,7 @@
 \alias{build_event_table}
 \title{build_event_table}
 \usage{
-build_event_table(fit, data, cols, skip, mv, percent.sign, digits, p.digits)
+build_event_table(fit, data, cols, skip, percent.sign, digits, p.digits)
 }
 \arguments{
 \item{fit}{Required. Formula, survival::survfit(), survival::coxph(). The formula
@@ -17,9 +17,6 @@ if \'fit\' is a formula.}
 Defaults to all usable columns in \'data\'.}
 
 \item{skip}{Optional. Character. Names of columns to skip as part of predictor testing.}
-
-\item{mv}{Optional. Logical. Indicates provided \'cols\' should be tested as part of one
-multi-variate model. Defaults to FALSE (univariate; seperate models).}
 
 \item{percent.sign}{Optional. Logical. Indicates percent sign should be printed
 for frequencies. Defaults to TRUE.}
@@ -47,7 +44,4 @@ data_lung <- lung \%>\%
 
 # Automatically model each parameter
 build_event_table(Surv(time, status) ~ 1, skip = 'inst', data = data_lung)
-
-# Automatically model all parameters together
-build_event_table(Surv(time, status) ~ 1, skip = 'inst', mv = TRUE, data = data_lung)
 }
