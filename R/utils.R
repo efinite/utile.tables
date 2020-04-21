@@ -103,3 +103,13 @@ utils::globalVariables(c(
 # Make NA's human readable
 .replace_na <- function(x) replace(x, is.na(x), '')
 
+
+# Make factor NA's explicit
+.explicit_na <- function(x) {
+  x_na <- is.na(x)
+  if (any(x_na)) {
+    levels(x) <- c(levels(x), '(NA)')
+    x[x_na] <- '(NA)'
+  }
+  x
+}

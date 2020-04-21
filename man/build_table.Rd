@@ -12,27 +12,11 @@ build_table(.object, ...)
 \item{...}{Arguments passed to the appropriate S3 method.}
 }
 \value{
-
+A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
+provided object.
 }
 \description{
 Build summary tables
-}
-\examples{
-library(dplyr)
-
-data_mtcars <- datasets::mtcars \%>\%
-  as_tibble() \%>\%
-  mutate_at(vars('vs', 'am'), as.logical) \%>\%
-  mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
-
-# Summarize all columns by cylindars variable
-data_mtcars \%>\% build_table(by = cyl, show.test = TRUE)
-
-# Summarize specific columns of data
-data_mtcars \%>\% build_table(mpg, vs, carb)
-
-# Summarize columns using tidyselect helpers
-data_mtcars \%>\% build_table(starts_with('c'), mpg, by = am)
 }
 \seealso{
 \code{\link{build_table.data.frame}}

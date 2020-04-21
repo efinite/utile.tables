@@ -22,6 +22,10 @@
 \arguments{
 \item{.object}{A data.frame.}
 
+\item{...}{One or more unquoted expressions separated by commas representing
+columns in the data.frame. May be specified using
+\code{\link[tidyselect:select_helpers]{tidyselect helpers}}.}
+
 \item{.by}{An unquoted expression representing a column to stratify summaries
 by.}
 
@@ -54,4 +58,21 @@ that the p-value still rounded to the number of digits specified in
 }
 \description{
 Build summary tables from data.frame objects
+}
+\examples{
+library(dplyr)
+
+data_mtcars <- datasets::mtcars \%>\%
+  as_tibble() \%>\%
+  mutate_at(vars('vs', 'am'), as.logical) \%>\%
+  mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
+
+# Summarize all columns by cylindars variable
+data_mtcars \%>\% build_table(.by = cyl, .show.test = TRUE)
+
+# Summarize specific columns of data
+data_mtcars \%>\% build_table(mpg, vs, carb)
+
+# Summarize columns using tidyselect helpers
+data_mtcars \%>\% build_table(starts_with('c'), mpg, .by = am)
 }

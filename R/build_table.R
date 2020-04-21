@@ -4,22 +4,6 @@
 #' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
 #' provided object.
 #' @seealso \code{\link{build_table.data.frame}}
-#' @examples
-#' library(dplyr)
-#'
-#' data_mtcars <- datasets::mtcars %>%
-#'   as_tibble() %>%
-#'   mutate_at(vars('vs', 'am'), as.logical) %>%
-#'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
-#'
-#' # Summarize all columns by cylindars variable
-#' data_mtcars %>% build_table(.by = cyl, .show.test = TRUE)
-#'
-#' # Summarize specific columns of data
-#' data_mtcars %>% build_table(mpg, vs, carb)
-#'
-#' # Summarize columns using tidyselect helpers
-#' data_mtcars %>% build_table(starts_with('c'), mpg, .by = am)
 #' @export
 build_table <- function(.object, ...) { UseMethod('build_table') }
 
@@ -34,7 +18,7 @@ build_table.default <- function (.object, ...) {
 #' @param .object A data.frame.
 #' @param ... One or more unquoted expressions separated by commas representing
 #' columns in the data.frame. May be specified using
-#' \code{\link[tidyselect:syntax]{tidyselect syntax}}.
+#' \code{\link[tidyselect:select_helpers]{tidyselect helpers}}.
 #' @param .by An unquoted expression representing a column to stratify summaries
 #' by.
 #' @param .inverse A logical. For logical data, report the frequency of FALSE
@@ -55,6 +39,22 @@ build_table.default <- function (.object, ...) {
 #' @param .p.digits An integer. The number of p-value digits to report. Note
 #' that the p-value still rounded to the number of digits specified in
 #' \code{.digits}.
+#' @examples
+#' library(dplyr)
+#'
+#' data_mtcars <- datasets::mtcars %>%
+#'   as_tibble() %>%
+#'   mutate_at(vars('vs', 'am'), as.logical) %>%
+#'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
+#'
+#' # Summarize all columns by cylindars variable
+#' data_mtcars %>% build_table(.by = cyl, .show.test = TRUE)
+#'
+#' # Summarize specific columns of data
+#' data_mtcars %>% build_table(mpg, vs, carb)
+#'
+#' # Summarize columns using tidyselect helpers
+#' data_mtcars %>% build_table(starts_with('c'), mpg, .by = am)
 #' @export
 build_table.data.frame <- function(
   .object,
@@ -72,18 +72,21 @@ build_table.data.frame <- function(
 ) {
 
   # Column selection
-  cols <- if (length(rlang::enquos(...)) > 0) {
+  cols <- if (length(rlang::enexprs(...)) > 0) {
     tidyselect::eval_select(rlang::expr(c(...)), data = .object)
   } else {
     rlang::set_names(1:length(names(.object)), names(.object))
   }
 
   # By variable selection and validation
-  by <- if (length((.by <- rlang::enquo(.by)) == 1)) {
+  by <- if (!missing(.by) & length((.by <- rlang::enexpr(.by)) == 1)) {
     tidyselect::eval_select(.by, data = .object)
   }
 
+  print(length(by))
+
   if (length(by) > 0) {
+    print('hello!')
     if (is.logical(.object[[by]]) | is.factor(.object[[by]])) {
 
       # Cast logicals to factors
