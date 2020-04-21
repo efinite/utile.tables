@@ -1,4 +1,9 @@
 #' @title Build summary tables
+#' @param .object An object of a supported class. See S3 methods below
+#' @param ... Arguments passed to the appropriate S3 method.
+#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
+#' provided object.
+#' @seealso \code{\link{build_table.data.frame}}
 #' @examples
 #' library(dplyr)
 #'
@@ -8,15 +13,15 @@
 #'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
 #'
 #' # Summarize all columns by cylindars variable
-#' data_mtcars %>% build_table(by = cyl, show.test = TRUE)
+#' data_mtcars %>% build_table(.by = cyl, .show.test = TRUE)
 #'
 #' # Summarize specific columns of data
 #' data_mtcars %>% build_table(mpg, vs, carb)
 #'
 #' # Summarize columns using tidyselect helpers
-#' data_mtcars %>% build_table(starts_with('c'), mpg, by = am)
+#' data_mtcars %>% build_table(starts_with('c'), mpg, .by = am)
 #' @export
-build_table <- function(...) { UseMethod('build_table') }
+build_table <- function(.object, ...) { UseMethod('build_table') }
 
 
 #' @export
@@ -24,6 +29,32 @@ build_table.default <- function (.object, ...) {
   stop('Object of class \'', class(.object), '\' no supported.')
 }
 
+#' @rdname build_table.data.frame
+#' @title Build summary tables from data.frame objects
+#' @param .object A data.frame.
+#' @param ... One or more unquoted expressions separated by commas representing
+#' columns in the data.frame. May be specified using
+#' \code{\link[tidyselect:syntax]{tidyselect syntax}}.
+#' @param .by An unquoted expression representing a column to stratify summaries
+#' by.
+#' @param .inverse A logical. For logical data, report the frequency of FALSE
+#' values instead of the TRUE.
+#' @param .append.stat A logical. Append the summary statistic to the column
+#' label.
+#' @param .parametric A logical. Use parametric tests as opposed to
+#' non-parametric.
+#' @param .show.missing A logical. Append a column listing the frequencies of
+#' missing data for each row.
+#' @param .show.test A logical. Append a column containing the test each p-value
+#' was derived from.
+#' @param .na.rm A logical. Ignore NA values when calculating the frequencies
+#' for logical and factor data types.
+#' @param .percent.sign A logical. Paste a percent symbol after all reported
+#' frequencies.
+#' @param .digits An integer. The number of digits to round numbers to.
+#' @param .p.digits An integer. The number of p-value digits to report. Note
+#' that the p-value still rounded to the number of digits specified in
+#' \code{.digits}.
 #' @export
 build_table.data.frame <- function(
   .object,

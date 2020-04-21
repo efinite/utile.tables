@@ -44,7 +44,7 @@ build_event_table <- function(fit, data, cols, skip, mv, percent.sign, digits, p
 .build_event_table <- function(
   fit = NULL, data = NULL, cols = NULL,
   skip = NULL, mv = FALSE, percent.sign = TRUE,
-  digits = 1, p.digits = 4
+  digits = 2, p.digits = 4
 ) {
 
   fit_vars <- all.vars(fit)
@@ -108,7 +108,7 @@ build_event_table.formula <- .build_event_table
 build_event_table.coxph <- function(
   fit = NULL, data = NULL, cols = NULL,
   skip = NULL, mv = FALSE, percent.sign = TRUE,
-  digits = 1, p.digits = 4
+  digits = 2, p.digits = 4
 ) {
   # Seperate data and formula from survival object
   if (is.null(data)) data <- eval(fit$call$data)
