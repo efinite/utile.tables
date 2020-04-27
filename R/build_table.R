@@ -1,9 +1,13 @@
 #' @title Build summary tables
+#' @description Takes a data or model object and summarizes it into a ready to
+#' export, human-readable summary table.
 #' @param .object An object of a supported class. See S3 methods below
 #' @param ... Arguments passed to the appropriate S3 method.
 #' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
 #' provided object.
-#' @seealso \code{\link{build_table.data.frame}}
+#' @seealso \code{\link{build_table.data.frame}},
+#' \code{\link{build_table.coxph}},
+#' \code{\link{build_table.lm}}
 #' @export
 build_table <- function(.object, ...) { UseMethod('build_table') }
 
@@ -13,8 +17,12 @@ build_table.default <- function (.object, ...) {
   stop('Object of class \'', class(.object), '\' no supported.')
 }
 
+
 #' @rdname build_table.data.frame
 #' @title Build summary tables from data.frame objects
+#' @description Takes a data.frame object and summarizes the columns into a
+#' ready to export, human-readable summary table. Capable of stratifying data
+#' and performing appropriate hypothesis testing.
 #' @param .object A data.frame.
 #' @param ... One or more unquoted expressions separated by commas representing
 #' columns in the data.frame. May be specified using
@@ -39,6 +47,9 @@ build_table.default <- function (.object, ...) {
 #' @param .p.digits An integer. The number of p-value digits to report. Note
 #' that the p-value still rounded to the number of digits specified in
 #' \code{.digits}.
+#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
+#' provided object.
+#' @seealso \code{\link{build_table}}
 #' @examples
 #' library(dplyr)
 #'
@@ -560,3 +571,6 @@ build_table.lm <- function(
   .replace_na(table)
 
 }
+
+
+

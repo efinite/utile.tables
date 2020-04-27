@@ -16,8 +16,11 @@ A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
 provided object.
 }
 \description{
-Build summary tables
+Takes a data or model object and summarizes it into a ready to
+export, human-readable summary table.
 }
 \seealso{
-\code{\link{build_table.data.frame}}
+\code{\link{build_table.data.frame}},
+\code{\link{build_table.coxph}},
+\code{\link{build_table.lm}}
 }

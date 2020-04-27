@@ -1,4 +1,6 @@
 #' @title Build summary rows
+#' @param x An object of type data.frame, logical, factor, or numeric.
+#' @param ... S3 method specific arguments.
 #' @examples
 #' library(dplyr)
 #'

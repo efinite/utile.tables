@@ -56,8 +56,14 @@ frequencies.}
 that the p-value still rounded to the number of digits specified in
 \code{.digits}.}
 }
+\value{
+A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
+provided object.
+}
 \description{
-Build summary tables from data.frame objects
+Takes a data.frame object and summarizes the columns into a
+ready to export, human-readable summary table. Capable of stratifying data
+and performing appropriate hypothesis testing.
 }
 \examples{
 library(dplyr)
@@ -75,4 +81,7 @@ data_mtcars \%>\% build_table(mpg, vs, carb)
 
 # Summarize columns using tidyselect helpers
 data_mtcars \%>\% build_table(starts_with('c'), mpg, .by = am)
+}
+\seealso{
+\code{\link{build_table}}
 }

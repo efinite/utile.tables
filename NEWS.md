@@ -1,5 +1,11 @@
+# utile.tables 0.2.0
+* Replaced `build_event_table()` & `build_event_rows()` with `build_model()` which has an S3 method for coxph models and uses tidyselect syntax. Plain formulas and survfit objects are no longer supported.
+* `build_table()` was converted to an S3 method that now uses tidyselect syntax which is far easier to use. The data.frame method now works more than 7.5x faster than the prior version. This function is the new home of methods from `utile.tools::tabulate_model()`.
+* `build_row()` was replaced with an S3 method that directly exposes the previously internal functions for working with raw factor, logical, or numeric data.
+* Support for `utile.tools::` version 0.2.5 was added.
+
 # utile.tables 0.1.8
-* Upgraded backend functions to be compatible with `utile.tools::` version 0.2.3 [BREAKING CHANGE]
+* Upgraded backend functions to be compatible with `utile.tools::` version 0.2.3 
 
 # utile.tables 0.1.7
 * Added graceful handling of NULL table data to `build_event_row()`.

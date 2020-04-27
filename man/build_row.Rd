@@ -6,6 +6,11 @@
 \usage{
 build_row(x, ...)
 }
+\arguments{
+\item{x}{An object of type data.frame, logical, factor, or numeric.}
+
+\item{...}{S3 method specific arguments.}
+}
 \description{
 Build summary rows
 }
