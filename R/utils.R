@@ -113,6 +113,13 @@ utils::globalVariables(c(
   }
   x
 }
+
+
+# Create assignments for a model
+.create_assigns <- function (x, y) {
+  rlang::set_names(x = purrr::imap(x, ~ which(.y - 1 == y)), nm = x)
+}
+
 # Clean data and formula environment
 .refit_model <- function(x, formula, na.rm = FALSE) {
 
