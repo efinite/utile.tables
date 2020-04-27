@@ -83,10 +83,7 @@ build_table.data.frame <- function(
     tidyselect::eval_select(.by, data = .object)
   }
 
-  print(length(by))
-
   if (length(by) > 0) {
-    print('hello!')
     if (is.logical(.object[[by]]) | is.factor(.object[[by]])) {
 
       # Cast logicals to factors
