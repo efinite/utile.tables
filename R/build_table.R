@@ -130,3 +130,215 @@ build_table.data.frame <- function(
 
 }
 
+
+#' @rdname build_table.coxph
+#' @title Build summary tables from coxph model objects
+#' @description Takes a Cox PH model object and summarizes it into a ready to
+#' export, human-readable summary table.
+#' @param .object An object of class \code{\link[survival]{coxph}}.
+#' @param ... One or more unquoted expressions separated by commas representing
+#' columns in the data.frame. May be specified using
+#' \code{\link[tidyselect:select_helpers]{tidyselect helpers}}.
+#' @param .test A character. The name of the
+#' \code{\link[stats:add1]{stats::drop1}} test to use with the model.
+#' @param .show.test A logical. Append a columns for the test and accompanying
+#' statistic used to derive the p-value.
+#' @param .level A double. The confidence level required.
+#' @param .percent.sign A logical. Paste a percent symbol after all reported
+#' frequencies.
+#' @param .digits An integer. The number of digits to round numbers to.
+#' @param .p.digits An integer. The number of p-value digits to report. Note
+#' that the p-value still rounded to the number of digits specified in
+#' \code{.digits}.
+#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
+#' provided object.
+#' @seealso \code{\link{build_table}}
+#' @examples
+#' library(survival)
+#' library(dplyr)
+#'
+#' data_lung <- lung %>%
+#'   as_tibble() %>%
+#'   mutate_at(vars(inst, status, sex), as.factor) %>%
+#'   mutate(status = case_when(status == 1 ~ 0, status == 2 ~ 1))
+#'
+#' fit <- coxph(Surv(time, status) ~ sex + meal.cal, data = data_lung)
+#'
+#' fit %>% build_table(Sex = sex, Calories = meal.cal, .test = 'LRT')
+#' @export
+build_table.coxph <- function(
+  .object,
+  ...,
+  .test = c('LRT', 'Wald'),
+  .show.test = FALSE,
+  .level = 0.95,
+  .percent.sign = TRUE,
+  .digits = 1,
+  .p.digits = 4
+) {
+
+  # Column selection
+  terms <- if (length(rlang::enexprs(...)) > 0) {
+    tidyselect::eval_select(expr = rlang::expr(c(...)), data = .object$assign)
+  } else {
+    rlang::set_names(
+      x = 1:length(names(.object$assign)),
+      nm = names(.object$assign)
+    )
+  }
+
+  # Filter assignments and map level names
+  assignments <- purrr::imap(
+    .object$assign[terms], ~ {
+      if (.y %in% names(.object$xlevels)) {
+        rlang::set_names(x = c(as.integer(NA), .x), nm = .object$xlevels[[.y]])
+      } else .x
+    }
+  )
+  names(assignments) <- names(terms)
+
+  # Check test argument
+  prefer.tests <- methods::hasArg(.test)
+  .test <- match.arg(.test)
+
+  # Tabulate & format estimates
+  estimates <- cbind(
+    summary(.object)$coefficients,
+    stats::confint(.object, level = .level)
+  )
+  estimates[,6:7] <- exp(estimates[,6:7])
+  estimates[,c(2,4,6,7)] <- as.character(
+    round(estimates[,c(2,4,6,7)], digits = .digits)
+  )
+  estimates[,5] <- format.pval(
+    pv = estimates[,5],
+    digits = .digits,
+    eps = 0.0001,
+    nsmall = .p.digits,
+    scientific = F,
+    na.form = ''
+  )
+
+  # Tabulate & format special tests
+  tests <- stats::drop1(
+    .refit_model(x = .object, na.rm = TRUE), # remove NA data
+    test = 'Chisq'
+  )[terms, 3:4]
+  tests[,1] <- as.character(round(tests[,1], digits = .digits))
+  tests[,2] <- format.pval(
+    pv = tests[,2],
+    digits = .digits,
+    eps = 0.0001,
+    nsmall = .p.digits,
+    scientific = F,
+    na.form = ''
+  )
+
+  # Generate table
+  table <- purrr::imap_dfr(
+    assignments,
+
+    # Map assignments
+    function (w, x) {
+
+      single_level <- (has_levels <- !is.null(names(w))) & length(w) == 2
+      if (single_level) w <- w[-1] # Ignore reference level of a 2-level
+
+      row <- c(
+        list(
+
+          # Variable name
+          Variable = if (single_level) paste0(x, ', ', names(w)) else x,
+
+          # Number of observations
+          n = as.character(.object$n),
+
+          # Number of events
+          Event = as.character(.object$nevent),
+
+          # Effect estimate & CI
+          'HR [CI]' = if (!has_levels | single_level) {
+            paste(
+              estimates[w, 2],
+              if (all(!is.na(estimates[w, 6:7]))) {
+                paste0('[', estimates[w, 6], '-', estimates[w, 7], ']')
+              } else '[NA]'
+            )
+          } else ''
+
+        ),
+
+        # Report test
+        if (.show.test) {
+          list(
+            Test =
+              if ((prefer.tests & .test == 'LRT') | (has_levels & !single_level)) {
+                'LRT'
+              } else 'Wald',
+            Statistic =
+              if ((prefer.tests & .test == 'LRT') | (has_levels & !single_level)) {
+                tests[match(x, names(assignments)), 1]
+              } else estimates[w, 4]
+          )
+        },
+
+        # p-value
+        list(
+          p = if ((prefer.tests & .test == 'LRT') | (has_levels & !single_level)) {
+            tests[match(x, names(assignments)), 2]
+          } else estimates[w, 5]
+        )
+
+      )
+
+      # Generate factor level rows
+      if (has_levels & !single_level) {
+
+        dplyr::bind_rows(
+          row,
+
+          # Reference level
+          list(
+            Variable = paste('  ', names(w[1])),
+            'HR [CI]' = 'Reference'
+          ),
+
+          # Map level assignments
+          list(
+
+            # Factor level name
+            Variable = paste('  ', names(w[-1])),
+
+            # Effect estimate and CI
+            'HR [CI]' = paste(
+                estimates[w[-1], 2],
+                ifelse(
+                  !is.na(estimates[w[-1], 6]) & !is.na(estimates[w[-1], 7]),
+                  paste0('[', estimates[w[-1], 6], '-', estimates[w[-1], 7], ']'),
+                  '[NA]'
+                )
+              ),
+
+            # Level p-value
+            p = estimates[w[-1], 5]
+
+          ),
+
+          # Report test
+          if (.show.test) {
+            list(
+              Test = c('', rep('Wald', length(w[-1]))),
+              Statistic = c('', estimates[w[-1], 4])
+            )
+          }
+
+        )
+
+      } else row
+
+    }
+  )
+
+  # Replace return table
+  .replace_na(table)
+
