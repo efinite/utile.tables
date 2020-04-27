@@ -9,11 +9,14 @@ BugReports: https://github.com/efinite/utile.tables/issues
 Encoding: UTF-8
 LazyData: TRUE
 Depends: R (>= 3.4.0)
-Imports: utile.tools (>= 0.3.0),
-  tibble,
+Imports: 
   dplyr,
-  rlang,
-  survival,
+  methods,
   purrr,
-  tidyselect
+  rlang,
+  tidyselect,
+  utile.tools (>= 0.2.5)
+Suggests:
+  survival,
+  tibble
 RoxygenNote: 7.1.0
