@@ -342,3 +342,4 @@ build_table.coxph <- function(
   # Replace return table
   .replace_na(table)
 
+}
