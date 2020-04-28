@@ -229,7 +229,9 @@ build_table.coxph <- function(
 
   # Tabulate & format special tests
   tests <- stats::drop1(
-    .refit_model(x = .object, na.rm = TRUE), # remove NA data
+    if (any(is.na(eval(.object$call$data)[all.vars(stats::formula(.object))]))) {
+      .refit_model(x = .object, na.rm = TRUE)
+    } else .object,
     test = 'Chisq'
   )[terms, 3:4]
   tests[,1] <- as.character(round(tests[,1], digits = .digits))

@@ -142,7 +142,8 @@ build_model.coxph <- function(
           base_formula,
           paste(names(terms), collapse = ' + '),
           sep = ' + '
-        )
+        ),
+        na.rm = TRUE
       ),
       !!! names(terms)
     )
