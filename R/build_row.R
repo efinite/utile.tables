@@ -26,8 +26,8 @@ build_row <- function (x, ...) UseMethod('build_row')
 
 # build_row: default
 #' @export
-build_row.default <- function (x, ...) {
-  warning('Object of class \'', class(x), '\' not of summarizable type.')
+build_row.default <- function (x, label = NULL, ...) {
+  warning('Warning: \'', label, '\' <', class(x), '> not summarizable. Ignoring.')
   NULL
 }
 
@@ -153,9 +153,11 @@ build_row.numeric <- function(
       if (length(levels(y)) > 1) {
         c(
           list(
-            p = utile.tools::test_hypothesis(
-              x = x, y = y, parametric = parametric, digits = digits,
-              p.digits = p.digits
+            p = suppressWarnings(
+              utile.tools::test_hypothesis(
+                x = x, y = y, parametric = parametric, digits = digits,
+                p.digits = p.digits
+              )
             )
           ),
           if (show.test) {
@@ -249,9 +251,11 @@ build_row.logical <- function (
       if (length(levels(y)) > 1) {
         c(
           list(
-            p = utile.tools::test_hypothesis(
-              x = x, y = y, parametric = parametric, digits = digits,
-              p.digits = p.digits
+            p = suppressWarnings(
+              utile.tools::test_hypothesis(
+                x = x, y = y, parametric = parametric, digits = digits,
+                p.digits = p.digits
+              )
             )
           ),
           if (show.test) {
@@ -367,9 +371,11 @@ build_row.factor <- function (
         c(
           list(
             p = c(
-              utile.tools::test_hypothesis(
-                x = x, y = y, parametric = parametric, digits = digits,
-                p.digits = p.digits
+              suppressWarnings(
+                utile.tools::test_hypothesis(
+                  x = x, y = y, parametric = parametric, digits = digits,
+                  p.digits = p.digits
+                )
               ),
               level_fill
             )
