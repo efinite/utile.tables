@@ -28,6 +28,7 @@ build_row <- function (x, ...) UseMethod('build_row')
 #' @export
 build_row.default <- function (x, ...) {
   warning('Object of class \'', class(x), '\' not of summarizable type.')
+  NULL
 }
 
 
