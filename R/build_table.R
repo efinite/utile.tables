@@ -233,7 +233,7 @@ build_table.coxph <- function(
       .refit_model(x = .object, na.rm = TRUE)
     } else .object,
     test = 'Chisq'
-  )[terms, 3:4]
+  )[terms + 1, 3:4]
   tests[,1] <- as.character(round(tests[,1], digits = .digits))
   tests[,2] <- format.pval(
     pv = tests[,2],
@@ -449,7 +449,10 @@ build_table.lm <- function(
   )
 
   # Tabulate & format special tests
-  tests <- stats::drop1(.object, test = .test)[terms, if (.test == 'Chisq') 5 else 5:6]
+  tests <- stats::drop1(
+    .object,
+    test = .test
+  )[terms + 1, if (.test == 'Chisq') 5 else 5:6]
   if (.test == 'F') {
     tests[,1] <- as.character(round(tests[,1], digits = .digits))
   } else {
