@@ -1,7 +1,7 @@
 #' @title Build summary tables
 #' @description Takes a data or model object and summarizes it into a ready to
 #' export, human-readable summary table.
-#' @param .object An object of a supported class. See S3 methods below
+#' @param .object An object of a supported class. See S3 methods below.
 #' @param ... Arguments passed to the appropriate S3 method.
 #' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
 #' provided object.
@@ -18,7 +18,6 @@ build_table.default <- function (.object, ...) {
 }
 
 
-#' @rdname build_table.data.frame
 #' @title Build summary tables from data.frame objects
 #' @description Takes a data.frame object and summarizes the columns into a
 #' ready to export, human-readable summary table. Capable of stratifying data
@@ -26,27 +25,25 @@ build_table.default <- function (.object, ...) {
 #' @param .object A data.frame.
 #' @param ... One or more unquoted expressions separated by commas representing
 #' columns in the data.frame. May be specified using
-#' \code{\link[tidyselect:select_helpers]{tidyselect helpers}}.
-#' @param .by An unquoted expression representing a column to stratify summaries
-#' by.
-#' @param .inverse A logical. For logical data, report the frequency of FALSE
-#' values instead of the TRUE.
-#' @param .append.stat A logical. Append the summary statistic to the column
-#' label.
-#' @param .parametric A logical. Use parametric tests as opposed to
-#' non-parametric.
-#' @param .show.missing A logical. Append a column listing the frequencies of
-#' missing data for each row.
-#' @param .show.test A logical. Append a column containing the test each p-value
-#' was derived from.
-#' @param .na.rm A logical. Ignore NA values when calculating the frequencies
-#' for logical and factor data types.
-#' @param .percent.sign A logical. Paste a percent symbol after all reported
-#' frequencies.
-#' @param .digits An integer. The number of digits to round numbers to.
-#' @param .p.digits An integer. The number of p-value digits to report. Note
-#' that the p-value still rounded to the number of digits specified in
-#' \code{.digits}.
+#' \code{\link[tidyselect:select_helpers]{tidyselect helpers}}. If left empty,
+#' all columns are summarized.
+#' @param .by An unquoted expression. Optional. The data column to stratify the
+#' summary by.
+#' @param .inverse A logical. Optional. For logical data, report the frequency
+#' of FALSE values instead of the TRUE.
+#' @param .append.stat A logical. Optionla. Append the type of summary statistic
+#' to the column label.
+#' @param .parametric A logical. Optional. Use parametric testing.
+#' @param .show.missing A logical. Optional. Append a column listing the
+#' frequencies of missing data for each row.
+#' @param .show.test A logical. Optional. Append a column containing the test
+#' each p-value was derived from.
+#' @param .na.rm A logical. Optional. Ignore NA values when calculating
+#' frequencies for logical and factor data types.
+#' @param .percent.sign A logical. Optional. Paste a percent symbol after all
+#' reported frequencies.
+#' @param .digits An integer. Optional. The number of digits to round numbers to.
+#' @param .p.digits An integer. Optional. The number of p-value digits to report.
 #' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
 #' provided object.
 #' @seealso \code{\link{build_table}}
@@ -54,7 +51,6 @@ build_table.default <- function (.object, ...) {
 #' library(dplyr)
 #'
 #' data_mtcars <- datasets::mtcars %>%
-#'   as_tibble() %>%
 #'   mutate_at(vars('vs', 'am'), as.logical) %>%
 #'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
 #'
@@ -63,9 +59,6 @@ build_table.default <- function (.object, ...) {
 #'
 #' # Summarize specific columns of data
 #' data_mtcars %>% build_table(mpg, vs, carb)
-#'
-#' # Summarize columns using tidyselect helpers
-#' data_mtcars %>% build_table(starts_with('c'), mpg, .by = am)
 #' @export
 build_table.data.frame <- function(
   .object,
@@ -139,14 +132,14 @@ build_table.data.frame <- function(
 }
 
 
-#' @rdname build_table.coxph
 #' @title Build summary tables from coxph model objects
 #' @description Takes a Cox PH model object and summarizes it into a ready to
 #' export, human-readable summary table.
 #' @param .object An object of class \code{\link[survival]{coxph}}.
 #' @param ... One or more unquoted expressions separated by commas representing
 #' columns in the data.frame. May be specified using
-#' \code{\link[tidyselect:select_helpers]{tidyselect helpers}}.
+#' \code{\link[tidyselect:select_helpers]{tidyselect helpers}}. If left empty,
+#' all terms are summarized.
 #' @param .test A character. The name of the
 #' \code{\link[stats:add1]{stats::drop1}} test to use with the model.
 #' @param .show.test A logical. Append a columns for the test and accompanying
@@ -166,7 +159,6 @@ build_table.data.frame <- function(
 #' library(dplyr)
 #'
 #' data_lung <- lung %>%
-#'   as_tibble() %>%
 #'   mutate_at(vars(inst, status, sex), as.factor) %>%
 #'   mutate(status = case_when(status == 1 ~ 0, status == 2 ~ 1))
 #'
@@ -356,14 +348,14 @@ build_table.coxph <- function(
 
 
 
-#' @rdname build_table.lm
 #' @title Build summary tables from lm model objects
 #' @description Takes a linear regression model object and summarizes it into a
 #' ready to export, human-readable summary table.
 #' @param .object An object of class \code{\link[stats]{lm}}.
 #' @param ... One or more unquoted expressions separated by commas representing
 #' columns in the data.frame. May be specified using
-#' \code{\link[tidyselect:select_helpers]{tidyselect helpers}}.
+#' \code{\link[tidyselect:select_helpers]{tidyselect helpers}}. If left empty,
+#' all terms are summarized.
 #' @param .test A character. The name of the
 #' \code{\link[stats:add1]{stats::drop1}} test to use with the model.
 #' @param .show.test A logical. Append a columns for the test and accompanying
@@ -382,7 +374,6 @@ build_table.coxph <- function(
 #' library(dplyr)
 #'
 #' data_mtcars <- datasets::mtcars %>%
-#'   as_tibble() %>%
 #'   mutate_at(vars('vs', 'am'), as.logical) %>%
 #'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
 #'

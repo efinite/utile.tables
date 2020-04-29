@@ -20,7 +20,8 @@
 
 \item{...}{One or more unquoted expressions separated by commas representing
 columns in the data.frame. May be specified using
-\code{\link[tidyselect:select_helpers]{tidyselect helpers}}.}
+\code{\link[tidyselect:select_helpers]{tidyselect helpers}}. If left empty,
+all terms are summarized.}
 
 \item{.test}{A character. The name of the
 \code{\link[stats:add1]{stats::drop1}} test to use with the model.}
@@ -51,7 +52,6 @@ ready to export, human-readable summary table.
 library(dplyr)
 
 data_mtcars <- datasets::mtcars \%>\%
-  as_tibble() \%>\%
   mutate_at(vars('vs', 'am'), as.logical) \%>\%
   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
 

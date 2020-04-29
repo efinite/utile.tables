@@ -7,30 +7,21 @@
 build_row(x, ...)
 }
 \arguments{
-\item{x}{An object of type data.frame, logical, factor, or numeric.}
+\item{x}{An object of a supported class. See S3 methods below.}
 
-\item{...}{S3 method specific arguments.}
+\item{...}{Arguments passed to the appropriate S3 method.}
+}
+\value{
+A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
+provided data.
 }
 \description{
-Build summary rows
+Summarize a data into a data.frame row(s). Optional
+stratification and null hypothesis testing using a factor or logical.
 }
-\examples{
-library(dplyr)
-
-data_mtcars <- datasets::mtcars \%>\%
-  as_tibble() \%>\%
-  mutate_at(vars('vs', 'am'), as.logical) \%>\%
-  mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
-
-# Create a "count" row from a data.frame
-build_row(x = data_mtcars, y = data_mtcars$cyl)
-
-# Create a row summarizing a numeric by a factor
-build_row(x = data_mtcars$mpg, y = data_mtcars$cyl)
-
-# Create a row summarizing a factor by a factor
-build_row(x = data_mtcars$carb, y = data_mtcars$cyl)
-
-# Create a row summarizing a logical by a factor
-build_row(x = data_mtcars$vs, y = data_mtcars$cyl)
+\seealso{
+\code{\link{build_row.data.frame}},
+\code{\link{build_row.numeric}},
+\code{\link{build_row.logical}},
+\code{\link{build_row.factor}}
 }

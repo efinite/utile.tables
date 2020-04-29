@@ -1,30 +1,19 @@
 #' @title Build summary rows
-#' @param x An object of type data.frame, logical, factor, or numeric.
-#' @param ... S3 method specific arguments.
-#' @examples
-#' library(dplyr)
-#'
-#' data_mtcars <- datasets::mtcars %>%
-#'   as_tibble() %>%
-#'   mutate_at(vars('vs', 'am'), as.logical) %>%
-#'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
-#'
-#' # Create a "count" row from a data.frame
-#' build_row(x = data_mtcars, y = data_mtcars$cyl)
-#'
-#' # Create a row summarizing a numeric by a factor
-#' build_row(x = data_mtcars$mpg, y = data_mtcars$cyl)
-#'
-#' # Create a row summarizing a factor by a factor
-#' build_row(x = data_mtcars$carb, y = data_mtcars$cyl)
-#'
-#' # Create a row summarizing a logical by a factor
-#' build_row(x = data_mtcars$vs, y = data_mtcars$cyl)
+#' @description Summarize a data into a data.frame row(s). Optional
+#' stratification and null hypothesis testing using a factor or logical.
+#' @param x An object of a supported class. See S3 methods below.
+#' @param ... Arguments passed to the appropriate S3 method.
+#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
+#' provided data.
+#' @seealso
+#' \code{\link{build_row.data.frame}},
+#' \code{\link{build_row.numeric}},
+#' \code{\link{build_row.logical}},
+#' \code{\link{build_row.factor}}
 #' @export
 build_row <- function (x, ...) UseMethod('build_row')
 
 
-# build_row: default
 #' @export
 build_row.default <- function (x, label = NULL, ...) {
   warning('Warning: \'', label, '\' <', class(x), '> not summarizable. Ignoring.')
@@ -32,7 +21,28 @@ build_row.default <- function (x, label = NULL, ...) {
 }
 
 
-# build_row: data.frame
+#' @title Summarize a data.frame or tibble
+#' @description Summarize a data.frame (row counts). Optional stratification
+#' using a factor or logical with the same size as the tibble.
+#' @param x An data.frame object. Data to summarize. Must be the same length as
+#' \code{y} (if specified).
+#' @param y A factor or logical. Optional. Data to stratify \code{x} by.
+#' @param label A character. Optional. The name of the summarized variable.
+#' @param percent.sign A logical. Optional. Paste a percentage symbol with each
+#' frequency.
+#' @param digits An integer. Optional. Number of digits to round to.
+#' @param ... Miscellaneous options.
+#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
+#' provided data.
+#' @examples
+#' library(dplyr)
+#'
+#' data_mtcars <- datasets::mtcars %>%
+#'   mutate_at(vars('vs', 'am'), as.logical) %>%
+#'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
+#'
+#' # Create a "count" row from a data.frame
+#' build_row(x = data_mtcars, y = data_mtcars$cyl)
 #' @export
 build_row.data.frame <- function (
   x,
@@ -73,14 +83,44 @@ build_row.data.frame <- function (
 }
 
 
-# build_row: numeric data
+#' @title Summarize numeric data
+#' @description Summarize numeric data in a tibble. Optional stratification and
+#' null hypothesis testing using another factor or logical.
+#' @param x A numeric. Data to summarize. Must be the same length as \code{y}
+#' (if specified).
+#' @param y A factor or logical. Optional. Data to stratify \code{x} by.
+#' @param label A character. Optional. The name of the summarized variable.
+#' @param parametric A logical. Optional. Use parametric tests.
+#' @param append.stat A logical. Optional. Append the summary statistic used to
+#' the label of the summarized row.
+#' @param show.missing A logical. Optional. Append summary counts of missing
+#' data.
+#' @param show.test A logical. Optional. Show the statistical test and test
+#' statistic used to determine the p-value.
+#' @param percent.sign A logical. Optional. Paste a percentage symbol with each
+#' frequency.
+#' @param digits An integer. Optional. Number of digits to round to.
+#' @param p.digits An integer. Optional. Number of p-value digits to report.
+#' @param ... Miscellaneous options.
+#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
+#' provided data.
+#' @seealso \code{\link{build_row}}
+#' @examples
+#' library(dplyr)
+#'
+#' data_mtcars <- datasets::mtcars %>%
+#'   mutate_at(vars('vs', 'am'), as.logical) %>%
+#'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
+#'
+#' # Create a row summarizing a numeric by a factor
+#' build_row(x = data_mtcars$mpg, y = data_mtcars$cyl)
 #' @export
 build_row.numeric <- function(
   x,
   y = NA,
   label = '(Unlabeled column)',
-  append.stat = TRUE,
   parametric = FALSE,
+  append.stat = TRUE,
   show.missing = FALSE,
   show.test = FALSE,
   percent.sign = TRUE,
@@ -172,7 +212,42 @@ build_row.numeric <- function(
 }
 
 
-# build_row: logical data
+#' @title Summarize logical data
+#' @description Summarize logical data in a tibble. Optional stratification and
+#' null hypothesis testing using another factor or logical.
+#' @param x A logical. Data to summarize. Must be the same length as \code{y}
+#' (if specified).
+#' @param y A factor or logical. Optional. Data to stratify \code{x} by.
+#' @param label A character. Optional. The name of the summarized variable.
+#' @param inverse A logical. Optional. Report frequencies of the \code{FALSE}
+#' values instead.
+#' @param parametric A logical. Optional. Use parametric tests.
+#' @param na.rm A logical. Optional. Whether to ignore NA values in frequency
+#' calculations. If left unspecified, NA values will be given an explicit level
+#' and summarized.
+#' @param append.stat A logical. Optional. Append the summary statistic used to
+#' the label of the summarized row.
+#' @param show.missing A logical. Optional. Append summary counts of missing
+#' data.
+#' @param show.test A logical. Optional. Show the statistical test and test
+#' statistic used to determine the p-value.
+#' @param percent.sign A logical. Optional. Paste a percentage symbol with each
+#' frequency.
+#' @param digits An integer. Optional. Number of digits to round to.
+#' @param p.digits An integer. Optional. Number of p-value digits to report.
+#' @param ... Miscellaneous options.
+#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
+#' provided data.
+#' @seealso \code{\link{build_row}}
+#' @examples
+#' library(dplyr)
+#'
+#' data_mtcars <- datasets::mtcars %>%
+#'   mutate_at(vars('vs', 'am'), as.logical) %>%
+#'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
+#'
+#' # Create a row summarizing a logical by a factor
+#' build_row(x = data_mtcars$vs, y = data_mtcars$cyl)
 #' @export
 build_row.logical <- function (
   x,
@@ -180,8 +255,8 @@ build_row.logical <- function (
   label = '(Unlabeled column)',
   inverse = FALSE,
   parametric = FALSE,
-  append.stat = TRUE,
   na.rm = FALSE,
+  append.stat = TRUE,
   show.missing = FALSE,
   show.test = FALSE,
   percent.sign = TRUE,
@@ -270,15 +345,48 @@ build_row.logical <- function (
 }
 
 
-# build_row: factor data
+#' @title Summarize factor data
+#' @description Summarize factor data in a tibble. Optional stratification and
+#' null hypothesis testing using another factor or logical.
+#' @param x A factor. Data to summarize. Must be the same length as \code{y}
+#' (if specified).
+#' @param y A factor or logical. Optional. Data to stratify \code{x} by.
+#' @param label A character. Optional. The name of the summarized variable.
+#' @param parametric A logical. Optional. Use parametric tests.
+#' @param na.rm A logical. Optional. Whether to ignore NA values in frequency
+#' calculations. If left unspecified, NA values will be given an explicit level
+#' and summarized.
+#' @param append.stat A logical. Optional. Append the summary statistic used to
+#' the label of the summarized row.
+#' @param show.missing A logical. Optional. Append summary counts of missing
+#' data.
+#' @param show.test A logical. Optional. Show the statistical test and test
+#' statistic used to determine the p-value.
+#' @param percent.sign A logical. Optional. Paste a percentage symbol with each
+#' frequency.
+#' @param digits An integer. Optional. Number of digits to round to.
+#' @param p.digits An integer. Optional. Number of p-value digits to report.
+#' @param ... Miscellaneous options.
+#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
+#' provided data.
+#' @seealso \code{\link{build_row}}
+#' @examples
+#' library(dplyr)
+#'
+#' data_mtcars <- datasets::mtcars %>%
+#'   mutate_at(vars('vs', 'am'), as.logical) %>%
+#'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
+#'
+#' # Create a row summarizing a factor by a factor
+#' build_row(x = data_mtcars$carb, y = data_mtcars$cyl)
 #' @export
 build_row.factor <- function (
   x,
   y = NA,
   label = '(Unlabeled column)',
   parametric = FALSE,
-  append.stat = TRUE,
   na.rm = FALSE,
+  append.stat = TRUE,
   show.missing = FALSE,
   show.test = FALSE,
   percent.sign = TRUE,

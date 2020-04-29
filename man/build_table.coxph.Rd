@@ -20,7 +20,8 @@
 
 \item{...}{One or more unquoted expressions separated by commas representing
 columns in the data.frame. May be specified using
-\code{\link[tidyselect:select_helpers]{tidyselect helpers}}.}
+\code{\link[tidyselect:select_helpers]{tidyselect helpers}}. If left empty,
+all terms are summarized.}
 
 \item{.test}{A character. The name of the
 \code{\link[stats:add1]{stats::drop1}} test to use with the model.}
@@ -52,7 +53,6 @@ library(survival)
 library(dplyr)
 
 data_lung <- lung \%>\%
-  as_tibble() \%>\%
   mutate_at(vars(inst, status, sex), as.factor) \%>\%
   mutate(status = case_when(status == 1 ~ 0, status == 2 ~ 1))
 

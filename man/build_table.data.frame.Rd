@@ -24,37 +24,35 @@
 
 \item{...}{One or more unquoted expressions separated by commas representing
 columns in the data.frame. May be specified using
-\code{\link[tidyselect:select_helpers]{tidyselect helpers}}.}
+\code{\link[tidyselect:select_helpers]{tidyselect helpers}}. If left empty,
+all columns are summarized.}
 
-\item{.by}{An unquoted expression representing a column to stratify summaries
-by.}
+\item{.by}{An unquoted expression. Optional. The data column to stratify the
+summary by.}
 
-\item{.inverse}{A logical. For logical data, report the frequency of FALSE
-values instead of the TRUE.}
+\item{.inverse}{A logical. Optional. For logical data, report the frequency
+of FALSE values instead of the TRUE.}
 
-\item{.append.stat}{A logical. Append the summary statistic to the column
-label.}
+\item{.append.stat}{A logical. Optionla. Append the type of summary statistic
+to the column label.}
 
-\item{.parametric}{A logical. Use parametric tests as opposed to
-non-parametric.}
+\item{.parametric}{A logical. Optional. Use parametric testing.}
 
-\item{.show.missing}{A logical. Append a column listing the frequencies of
-missing data for each row.}
+\item{.show.missing}{A logical. Optional. Append a column listing the
+frequencies of missing data for each row.}
 
-\item{.show.test}{A logical. Append a column containing the test each p-value
-was derived from.}
+\item{.show.test}{A logical. Optional. Append a column containing the test
+each p-value was derived from.}
 
-\item{.na.rm}{A logical. Ignore NA values when calculating the frequencies
-for logical and factor data types.}
+\item{.na.rm}{A logical. Optional. Ignore NA values when calculating
+frequencies for logical and factor data types.}
 
-\item{.percent.sign}{A logical. Paste a percent symbol after all reported
-frequencies.}
+\item{.percent.sign}{A logical. Optional. Paste a percent symbol after all
+reported frequencies.}
 
-\item{.digits}{An integer. The number of digits to round numbers to.}
+\item{.digits}{An integer. Optional. The number of digits to round numbers to.}
 
-\item{.p.digits}{An integer. The number of p-value digits to report. Note
-that the p-value still rounded to the number of digits specified in
-\code{.digits}.}
+\item{.p.digits}{An integer. Optional. The number of p-value digits to report.}
 }
 \value{
 A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
@@ -69,7 +67,6 @@ and performing appropriate hypothesis testing.
 library(dplyr)
 
 data_mtcars <- datasets::mtcars \%>\%
-  as_tibble() \%>\%
   mutate_at(vars('vs', 'am'), as.logical) \%>\%
   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
 
@@ -78,9 +75,6 @@ data_mtcars \%>\% build_table(.by = cyl, .show.test = TRUE)
 
 # Summarize specific columns of data
 data_mtcars \%>\% build_table(mpg, vs, carb)
-
-# Summarize columns using tidyselect helpers
-data_mtcars \%>\% build_table(starts_with('c'), mpg, .by = am)
 }
 \seealso{
 \code{\link{build_table}}

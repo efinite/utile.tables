@@ -3,7 +3,7 @@
 #' and returns a clean, human readable table of summarizing the effects and
 #' statistics for the newly generated model. This functions greatly simplifies
 #' fitting a large number of variables against a set of time-to-event data.
-#' @param .object An fit object of a supported class. See S3 methods below
+#' @param .object An object of a supported class. See S3 methods below.
 #' @param ... Arguments passed to the appropriate S3 method.
 #' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
 #' provided object.
@@ -49,17 +49,13 @@ build_model.default <- function (.object, ...) {
 #' library(dplyr)
 #'
 #' data_lung <- lung %>%
-#'   as_tibble() %>%
 #'   mutate_at(vars(inst, status, sex), as.factor) %>%
 #'   mutate(status = case_when(status == 1 ~ 0, status == 2 ~ 1))
 #'
 #' fit <- coxph(Surv(time, status) ~ 1, data = data_lung)
 #'
-#' # Create multiple univariate models
-#' fit %>% build_model(sex, meal.cal)
-#'
-#' # Create a single multivariate model
-#' fit %>% build_model(sex, meal.cal, inst, .mv = TRUE)
+#' # Create a univariate model for each variable
+#' build_model(.object = fit, sex, age)
 #' @export
 build_model.coxph <- function(
   .object,

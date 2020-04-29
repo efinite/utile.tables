@@ -7,7 +7,7 @@
 build_model(.object, ...)
 }
 \arguments{
-\item{.object}{An fit object of a supported class. See S3 methods below}
+\item{.object}{An object of a supported class. See S3 methods below.}
 
 \item{...}{Arguments passed to the appropriate S3 method.}
 }

@@ -58,17 +58,13 @@ library(survival)
 library(dplyr)
 
 data_lung <- lung \%>\%
-  as_tibble() \%>\%
   mutate_at(vars(inst, status, sex), as.factor) \%>\%
   mutate(status = case_when(status == 1 ~ 0, status == 2 ~ 1))
 
 fit <- coxph(Surv(time, status) ~ 1, data = data_lung)
 
-# Create multiple univariate models
-fit \%>\% build_model(sex, meal.cal)
-
-# Create a single multivariate model
-fit \%>\% build_model(sex, meal.cal, inst, .mv = TRUE)
+# Create a univariate model for each variable
+build_model(.object = fit, sex, age)
 }
 \seealso{
 \code{\link{build_model}}
