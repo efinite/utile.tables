@@ -21,11 +21,13 @@
 # Clean data and formula environment
 .refit_model <- function(x, formula, na.rm = FALSE) {
 
+  # Get model call
   call <- x$call
 
   # Reset formula environment
   call$formula <- stats::as.formula(
-    deparse(if (!missing(formula)) formula else call$formula)
+    if (!missing(formula)) formula
+    else call$formula
   )
 
   # Remove NA's from data
@@ -35,4 +37,5 @@
 
   # Refit and return
   eval(call, parent.frame())
+
 }
