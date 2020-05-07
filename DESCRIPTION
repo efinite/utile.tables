@@ -16,6 +16,5 @@ Imports:
   tidyselect,
   utile.tools (>= 0.2.5)
 Suggests:
-  tibble,
   survival
 RoxygenNote: 7.1.0
