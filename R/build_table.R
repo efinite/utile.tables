@@ -180,8 +180,8 @@ build_table.coxph <- function(
 ) {
 
   # Column selection
-  terms <- if (dots_n(...) > 0) {
-    tidyselect::eval_select(expr = expr(c(...)), data = .object$assign)
+  terms <- if (rlang::dots_n(...) > 0) {
+    tidyselect::eval_select(expr = rlang::expr(c(...)), data = .object$assign)
   } else {
     rlang::set_names(
       x = 1:length(names(.object$assign)),
