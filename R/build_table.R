@@ -201,7 +201,7 @@ build_table.coxph <- function(
   names(assignments) <- names(terms)
 
   # Check test argument
-  prefer.tests <- methods::hasArg(.test)
+  prefer.tests <- '.test' %in% names(match.call())
   .test <- match.arg(.test)
 
   # Tabulate & format estimates
@@ -421,7 +421,7 @@ build_table.lm <- function(
   names(assignments) <- names(terms)
 
   # Check test argument
-  prefer.tests <- methods::hasArg(.test)
+  prefer.tests <- '.test' %in% names(match.call())
   .test <- match.arg(.test)
 
   # Tabulate & format estimates
