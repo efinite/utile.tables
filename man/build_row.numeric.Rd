@@ -47,8 +47,8 @@ frequency.}
 \item{...}{Miscellaneous options.}
 }
 \value{
-An object of class data.frame summarizing the provided data. If the
-\code{tibble} package has been installed, a tibble will be returned.
+An object of class \code{tbl_df} (tibble) summarizing the provided
+data.
 }
 \description{
 Summarize numeric data in a tibble. Optional stratification and

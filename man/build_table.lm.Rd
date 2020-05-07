@@ -41,8 +41,8 @@ that the p-value still rounded to the number of digits specified in
 \code{.digits}.}
 }
 \value{
-An object of class data.frame summarizing the provided object. If the
-\code{tibble} package has been installed, a tibble will be returned.
+An object of class \code{tbl_df} (tibble) summarizing the provided
+object.
 }
 \description{
 Takes a linear regression model object and summarizes it into a

@@ -55,8 +55,8 @@ reported frequencies.}
 \item{.p.digits}{An integer. Optional. The number of p-value digits to report.}
 }
 \value{
-An object of class data.frame summarizing the provided object. If the
-\code{tibble} package has been installed, a tibble will be returned.
+An object of class \code{tbl_df} (tibble) summarizing the provided
+object.
 }
 \description{
 Takes a data.frame object and summarizes the columns into a
@@ -64,17 +64,20 @@ ready to export, human-readable summary table. Capable of stratifying data
 and performing appropriate hypothesis testing.
 }
 \examples{
-library(dplyr)
+# Sample data
+df <- data.frame(
+  strata = factor(sample(letters[1:3], 1000, replace = TRUE)),
+  numeric = sample(1:100, 1000, replace = TRUE),
+  numeric2 = sample(1:100, 1000, replace = TRUE),
+  factor = factor(sample(1:5, 1000, replace = TRUE)),
+  logical = sample(c(TRUE,FALSE), 1000, replace = TRUE)
+)
 
-data_mtcars <- datasets::mtcars \%>\%
-  mutate_at(vars('vs', 'am'), as.logical) \%>\%
-  mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
+# Summarize all columns
+build_table(df, .by = strata)
 
-# Summarize all columns by cylindars variable
-data_mtcars \%>\% build_table(.by = cyl, .show.test = TRUE)
-
-# Summarize specific columns of data
-data_mtcars \%>\% build_table(mpg, vs, carb)
+# Summarize & rename selected columns
+build_table(df, Numeric = numeric2, Factor = factor, .by = strata)
 }
 \seealso{
 \code{\link{build_table}}

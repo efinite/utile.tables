@@ -12,8 +12,8 @@ build_model(.object, ...)
 \item{...}{Arguments passed to the appropriate S3 method.}
 }
 \value{
-An object of class data.frame summarizing the provided object. If the
-\code{tibble} package has been installed, a tibble will be returned.
+An object of class \code{tbl_df} (tibble) summarizing the provided
+object.
 }
 \description{
 Models specified terms in model data against an existing model
