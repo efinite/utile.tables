@@ -3,8 +3,8 @@
 #' stratification and null hypothesis testing using a factor or logical.
 #' @param x An object of a supported class. See S3 methods below.
 #' @param ... Arguments passed to the appropriate S3 method.
-#' @return An object of class data.frame summarizing the provided data. If the
-#' \code{tibble} package has been installed, a tibble will be returned.
+#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
+#' data.
 #' @seealso
 #' \code{\link{build_row.data.frame}},
 #' \code{\link{build_row.numeric}},
@@ -34,8 +34,8 @@ build_row.default <- function (x, label = NULL, ...) {
 #' frequency.
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param ... Miscellaneous options.
-#' @return An object of class data.frame summarizing the provided data. If the
-#' \code{tibble} package has been installed, a tibble will be returned.
+#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
+#' data.
 #' @examples
 #' # Create a "count" row from a data.frame
 #' build_row(
@@ -107,9 +107,8 @@ build_row.data.frame <- function (
     }
   }
 
-  # Return converted data.frame
-  if (requireNamespace('tibble', quietly = TRUE)) tibble::as_tibble(cols)
-  else as.data.frame(cols)
+  # Return converted tibble
+  dplyr::as_tibble(cols)
 
 }
 
@@ -133,8 +132,8 @@ build_row.data.frame <- function (
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param p.digits An integer. Optional. Number of p-value digits to report.
 #' @param ... Miscellaneous options.
-#' @return An object of class data.frame summarizing the provided data. If the
-#' \code{tibble} package has been installed, a tibble will be returned.
+#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
+#' data.
 #' @seealso \code{\link{build_row}}
 #' @examples
 #' # Create a row summarizing a numeric by a factor
@@ -244,9 +243,8 @@ build_row.numeric <- function(
   }
 
 
-  # Return converted data.frame
-  if (requireNamespace('tibble', quietly = TRUE)) tibble::as_tibble(cols)
-  else as.data.frame(cols)
+  # Return converted tibble
+  dplyr::as_tibble(cols)
 
 }
 
@@ -275,8 +273,8 @@ build_row.numeric <- function(
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param p.digits An integer. Optional. Number of p-value digits to report.
 #' @param ... Miscellaneous options.
-#' @return An object of class data.frame summarizing the provided data. If the
-#' \code{tibble} package has been installed, a tibble will be returned.
+#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
+#' data.
 #' @seealso \code{\link{build_row}}
 #' @examples
 #' # Create a row summarizing a logical by a factor
@@ -389,9 +387,8 @@ build_row.logical <- function (
   }
 
 
-  # Return converted data.frame
-  if (requireNamespace('tibble', quietly = TRUE)) tibble::as_tibble(cols)
-  else as.data.frame(cols)
+  # Return converted tibble
+  dplyr::as_tibble(cols)
 
 }
 
@@ -418,8 +415,8 @@ build_row.logical <- function (
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param p.digits An integer. Optional. Number of p-value digits to report.
 #' @param ... Miscellaneous options.
-#' @return An object of class data.frame summarizing the provided data. If the
-#' \code{tibble} package has been installed, a tibble will be returned.
+#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
+#' data.
 #' @seealso \code{\link{build_row}}
 #' @examples
 #' # Create a row summarizing a factor by a factor
@@ -546,9 +543,8 @@ build_row.factor <- function (
   }
 
 
-  # Return converted data.frame
-  if (requireNamespace('tibble', quietly = TRUE)) tibble::as_tibble(cols)
-  else as.data.frame(cols)
+  # Return converted tibble
+  dplyr::as_tibble(cols)
 
 }
 

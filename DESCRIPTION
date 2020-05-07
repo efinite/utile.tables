@@ -10,12 +10,12 @@ Encoding: UTF-8
 LazyData: TRUE
 Depends: R (>= 3.4.0)
 Imports: 
+  dplyr,
   purrr,
   rlang,
   tidyselect,
   utile.tools (>= 0.2.5)
 Suggests:
-  dplyr,
   tibble,
   survival
 RoxygenNote: 7.1.0

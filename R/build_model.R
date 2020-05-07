@@ -5,8 +5,8 @@
 #' fitting a large number of variables against a set of time-to-event data.
 #' @param .object An object of a supported class. See S3 methods below.
 #' @param ... Arguments passed to the appropriate S3 method.
-#' @return An object of class data.frame summarizing the provided object. If the
-#' \code{tibble} package has been installed, a tibble will be returned.
+#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
+#' object.
 #' @seealso \code{\link{build_model.coxph}}
 #' @export
 build_model <- function(.object, ...) { UseMethod('build_model') }
@@ -77,7 +77,7 @@ build_model.coxph <- function(
   base_formula <- deparse(stats::formula(.object))
 
   # Column selection
-  terms <- if (length(rlang::enexprs(...)) > 0) {
+  terms <- if (rlang::dots_n(...) > 0) {
     tidyselect::eval_select(expr = rlang::expr(c(...)), data = data)
   } else {
     rlang::set_names(x = 1:length(names(data)), nm = names(data))
@@ -115,20 +115,17 @@ build_model.coxph <- function(
   if (!.mv) {
 
     # Univariable modelling
-    do.call(
-      'rbind',
-      purrr::imap(
-        terms,
+    purrr::imap_dfr(
+      terms,
         ~ {
-          build_table_(
-            .object = .refit_model(
-              x = .object,
-              formula = paste(base_formula, .y, sep = ' + ')
-            ),
-            !! .y
-          )
-        }
-      )
+        build_table_(
+          .object = .refit_model(
+            x = .object,
+            formula = paste(base_formula, .y, sep = ' + ')
+          ),
+          !! .y
+        )
+      }
     )
 
   } else {

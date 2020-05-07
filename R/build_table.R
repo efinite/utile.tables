@@ -3,8 +3,7 @@
 #' export, human-readable summary table.
 #' @param .object An object of a supported class. See S3 methods below.
 #' @param ... Arguments passed to the appropriate S3 method.
-#' @return An object of class data.frame summarizing the provided object. If the
-#' \code{tibble} package has been installed, a tibble will be returned.
+#' @return An object of class tbl_df (tibble) summarizing the provided object.
 #' @seealso \code{\link{build_table.data.frame}},
 #' \code{\link{build_table.coxph}},
 #' \code{\link{build_table.lm}}
@@ -44,21 +43,24 @@ build_table.default <- function (.object, ...) {
 #' reported frequencies.
 #' @param .digits An integer. Optional. The number of digits to round numbers to.
 #' @param .p.digits An integer. Optional. The number of p-value digits to report.
-#' @return An object of class data.frame summarizing the provided object. If the
-#' \code{tibble} package has been installed, a tibble will be returned.
+#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
+#' object.
 #' @seealso \code{\link{build_table}}
 #' @examples
-#' library(dplyr)
+#' # Sample data
+#' df <- data.frame(
+#'   strata = factor(sample(letters[1:3], 1000, replace = TRUE)),
+#'   numeric = sample(1:100, 1000, replace = TRUE),
+#'   numeric2 = sample(1:100, 1000, replace = TRUE),
+#'   factor = factor(sample(1:5, 1000, replace = TRUE)),
+#'   logical = sample(c(TRUE,FALSE), 1000, replace = TRUE)
+#' )
 #'
-#' data_mtcars <- datasets::mtcars %>%
-#'   mutate_at(vars('vs', 'am'), as.logical) %>%
-#'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
+#' # Summarize all columns
+#' build_table(df, .by = strata)
 #'
-#' # Summarize all columns by cylindars variable
-#' data_mtcars %>% build_table(.by = cyl, .show.test = TRUE)
-#'
-#' # Summarize specific columns of data
-#' data_mtcars %>% build_table(mpg, vs, carb)
+#' # Summarize & rename selected columns
+#' build_table(df, Numeric = numeric2, Factor = factor, .by = strata)
 #' @export
 build_table.data.frame <- function(
   .object,
@@ -76,15 +78,15 @@ build_table.data.frame <- function(
 ) {
 
   # Column selection
-  cols <- if (length(rlang::enexprs(...)) > 0) {
+  cols <- if (rlang::dots_n(...) > 0) {
     tidyselect::eval_select(rlang::expr(c(...)), data = .object)
   } else {
     rlang::set_names(1:length(names(.object)), names(.object))
   }
 
   # By variable selection and validation
-  by <- if (!missing(.by) & length((.by <- rlang::enexpr(.by)) == 1)) {
-    tidyselect::eval_select(.by, data = .object)
+  by <- if (!missing(.by) & rlang::dots_n(.by) == 1) {
+    tidyselect::eval_select(rlang::enexpr(.by), data = .object)
   }
 
   if (length(by) > 0) {
@@ -121,15 +123,12 @@ build_table.data.frame <- function(
   }
 
   # Create table
-  table <- do.call(
-    'rbind',
-    c(
-      list(build_row_(x = .object)),
-      purrr::imap(cols, ~ build_row_(x = .object[[.x]], label = .y))
-    )
+  table <- dplyr::bind_rows(
+    build_row_(x = .object),
+    purrr::imap_dfr(cols, ~ build_row_(x = .object[[.x]], label = .y))
   )
 
-  # Replace return table
+  # Replace NA's & return table
   .replace_na(table)
 
 }
@@ -154,8 +153,8 @@ build_table.data.frame <- function(
 #' @param .p.digits An integer. The number of p-value digits to report. Note
 #' that the p-value still rounded to the number of digits specified in
 #' \code{.digits}.
-#' @return An object of class data.frame summarizing the provided object. If the
-#' \code{tibble} package has been installed, a tibble will be returned.
+#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
+#' object.
 #' @seealso \code{\link{build_table}}
 #' @examples
 #' library(survival)
@@ -181,8 +180,8 @@ build_table.coxph <- function(
 ) {
 
   # Column selection
-  terms <- if (length(rlang::enexprs(...)) > 0) {
-    tidyselect::eval_select(expr = rlang::expr(c(...)), data = .object$assign)
+  terms <- if (dots_n(...) > 0) {
+    tidyselect::eval_select(expr = expr(c(...)), data = .object$assign)
   } else {
     rlang::set_names(
       x = 1:length(names(.object$assign)),
@@ -240,7 +239,7 @@ build_table.coxph <- function(
   )
 
   # Generate table
-  table <- purrr::imap(
+  table <- purrr::imap_dfr(
     assignments,
     function (w, x) {
 
@@ -331,21 +330,14 @@ build_table.coxph <- function(
 
       }
 
-      # Return column data
-      as.data.frame(cols, check.names = FALSE)
+      # Return as df (better performance)
+      dplyr::as_tibble(cols)
 
     }
   )
 
-  # Stitch rows together
-  table <- do.call('rbind', table)
-
   # Replace NA's
-  table <- .replace_na(table)
-
-  # Return converted data.frame
-  if (requireNamespace('tibble', quietly = TRUE)) tibble::as_tibble(table)
-  else table
+  .replace_na(table)
 
 }
 
@@ -369,8 +361,8 @@ build_table.coxph <- function(
 #' @param .p.digits An integer. The number of p-value digits to report. Note
 #' that the p-value still rounded to the number of digits specified in
 #' \code{.digits}.
-#' @return An object of class data.frame summarizing the provided object. If the
-#' \code{tibble} package has been installed, a tibble will be returned.
+#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
+#' object.
 #' @seealso \code{\link{build_table}}
 #' @examples
 #' library(dplyr)
@@ -396,12 +388,12 @@ build_table.lm <- function(
 
   # Assignments
   assignments <- .create_assigns(
-    x = c('(Intercept)', attr(stats::terms(.object), 'term.labels')),
+    x = c('(Intercept)', attr(terms(.object), 'term.labels')),
     y = .object$assign
   )
 
   # Column selection
-  terms <- if (length(rlang::enexprs(...)) > 0) {
+  terms <- if (rlang::dots_n(...) > 0) {
     tidyselect::eval_select(expr = rlang::expr(c(...)), data = assignments)
   } else {
     rlang::set_names(
@@ -462,7 +454,7 @@ build_table.lm <- function(
   )
 
   # Generate table
-  table <- purrr::imap(
+  table <- purrr::imap_dfr(
     assignments,
 
     # Map assignments
@@ -541,20 +533,13 @@ build_table.lm <- function(
       }
 
       # Return data
-      as.data.frame(cols, check.names = FALSE)
+      dplyr::as_tibble(cols)
 
     }
   )
 
-  # Stitch rows together
-  table <- do.call('rbind', table)
-
-  # Replace NA's
-  table <- .replace_na(table)
-
-  # Return converted data.frame
-  if (requireNamespace('tibble', quietly = TRUE)) tibble::as_tibble(table)
-  else table
+  # Replace NA's & return
+  .replace_na(table)
 
 }
 
