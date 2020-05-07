@@ -56,22 +56,20 @@ frequency.}
 \item{...}{Miscellaneous options.}
 }
 \value{
-A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
-provided data.
+An object of class data.frame summarizing the provided data. If the
+\code{tibble} package has been installed, a tibble will be returned.
 }
 \description{
 Summarize logical data in a tibble. Optional stratification and
 null hypothesis testing using another factor or logical.
 }
 \examples{
-library(dplyr)
-
-data_mtcars <- datasets::mtcars \%>\%
-  mutate_at(vars('vs', 'am'), as.logical) \%>\%
-  mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
-
 # Create a row summarizing a logical by a factor
-build_row(x = data_mtcars$vs, y = data_mtcars$cyl)
+build_row(
+  x = as.logical(datasets::mtcars$vs),
+  y = as.factor(datasets::mtcars$cyl),
+  label = 'VS'
+)
 }
 \seealso{
 \code{\link{build_row}}

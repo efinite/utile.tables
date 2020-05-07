@@ -5,8 +5,8 @@
 #' fitting a large number of variables against a set of time-to-event data.
 #' @param .object An object of a supported class. See S3 methods below.
 #' @param ... Arguments passed to the appropriate S3 method.
-#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
-#' provided object.
+#' @return An object of class data.frame summarizing the provided object. If the
+#' \code{tibble} package has been installed, a tibble will be returned.
 #' @seealso \code{\link{build_model.coxph}}
 #' @export
 build_model <- function(.object, ...) { UseMethod('build_model') }
@@ -28,7 +28,7 @@ build_model.default <- function (.object, ...) {
 #' @param ... One or more unquoted expressions separated by commas representing
 #' columns in the model data.frame. May be specified using
 #' \code{\link[tidyselect:select_helpers]{tidyselect helpers}}.
-#' @param .mv A logical. Fit all terms into a single multivariate model. If left
+#' @param .mv A logical. Fit all terms into a single multivariable model. If left
 #' FALSE, all terms are fit in their own univariate models.
 #' @param .test A character. The name of a \code{\link[stats:add1]{stats::drop1}}
 #' test to use with the model.
@@ -41,8 +41,8 @@ build_model.default <- function (.object, ...) {
 #' @param .p.digits An integer. The number of p-value digits to report. Note
 #' that the p-value still rounded to the number of digits specified in
 #' \code{.digits}.
-#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
-#' new models.
+#' @return An object of class data.frame summarizing the provided object. If the
+#' \code{tibble} package has been installed, a tibble will be returned.
 #' @seealso \code{\link{build_model}}
 #' @examples
 #' library(survival)
@@ -114,23 +114,26 @@ build_model.coxph <- function(
   # Refit model and build summary table
   if (!.mv) {
 
-    # Univariate modelling
-    purrr::imap_dfr(
-      terms,
-      ~ {
-        build_table_(
-          .object = .refit_model(
-            x = .object,
-            formula = paste(base_formula, .y, sep = ' + ')
-          ),
-          !! .y
-        )
-      }
+    # Univariable modelling
+    do.call(
+      'rbind',
+      purrr::imap(
+        terms,
+        ~ {
+          build_table_(
+            .object = .refit_model(
+              x = .object,
+              formula = paste(base_formula, .y, sep = ' + ')
+            ),
+            !! .y
+          )
+        }
+      )
     )
 
   } else {
 
-    # Multivariate modelling
+    # Multivariable modelling
     build_table_(
       .object = .refit_model(
         x = .object,

@@ -3,8 +3,8 @@
 #' stratification and null hypothesis testing using a factor or logical.
 #' @param x An object of a supported class. See S3 methods below.
 #' @param ... Arguments passed to the appropriate S3 method.
-#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
-#' provided data.
+#' @return An object of class data.frame summarizing the provided data. If the
+#' \code{tibble} package has been installed, a tibble will be returned.
 #' @seealso
 #' \code{\link{build_row.data.frame}},
 #' \code{\link{build_row.numeric}},
@@ -28,26 +28,27 @@ build_row.default <- function (x, label = NULL, ...) {
 #' \code{y} (if specified).
 #' @param y A factor or logical. Optional. Data to stratify \code{x} by.
 #' @param label A character. Optional. The name of the summarized variable.
+#' @param show.missing A logical. Optional. Append an empty missing data column.
+#' @param show.test A logical. Optional. Append empty test and statistic columns.
 #' @param percent.sign A logical. Optional. Paste a percentage symbol with each
 #' frequency.
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param ... Miscellaneous options.
-#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
-#' provided data.
+#' @return An object of class data.frame summarizing the provided data. If the
+#' \code{tibble} package has been installed, a tibble will be returned.
 #' @examples
-#' library(dplyr)
-#'
-#' data_mtcars <- datasets::mtcars %>%
-#'   mutate_at(vars('vs', 'am'), as.logical) %>%
-#'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
-#'
 #' # Create a "count" row from a data.frame
-#' build_row(x = data_mtcars, y = data_mtcars$cyl)
+#' build_row(
+#'   x = datasets::mtcars,
+#'   y = as.factor(datasets::mtcars$cyl)
+#' )
 #' @export
 build_row.data.frame <- function (
   x,
   y,
   label = 'n(%)',
+  show.missing = FALSE,
+  show.test = FALSE,
   percent.sign = TRUE,
   digits = 1,
   ...
@@ -56,29 +57,59 @@ build_row.data.frame <- function (
   # Convert logical by group to factor
   if (is.logical(y) & length(y) > 1) y <- .explicit_na(as.factor(y))
 
+
   # Build row
-  dplyr::bind_cols(
+  cols <- list()
 
-    # Variable label
-    Variable = label,
+  # Variable label
+  cols$Variable <- label
 
-    # Overall count
-    Overall = as.character((overall_cnt <- nrow(x))),
+  # Overall count
+  cols$Overall <- as.character((overall_cnt <- nrow(x)))
 
-    # Frequencies by level
-    if (is.factor(y)) {
+  # Frequencies by level
+  if (is.factor(y)) {
+    cols <- c(
+      cols,
       purrr::map(
         sort(rlang::set_names(levels(y))),
-        ~ utile.tools::paste_freq(
-          x = nrow(x[y == .x,]),
-          y = overall_cnt,
-          percent.sign = percent.sign,
-          digits = digits
+        function (.y) {
+          utile.tools::paste_freq(
+            x = nrow(x[y == .y,]),
+            y = overall_cnt,
+            percent.sign = percent.sign,
+            digits = digits
+          )
+        }
+      )
+    )
+  }
+
+  # Missing count columns
+  if (show.missing) {
+    cols$`Missing: Overall` <- ''
+    if (is.factor(y)) {
+      cols <- c(
+        cols,
+        rlang::set_names(
+          rep('', length(levels(y))),
+          paste('Missing:', levels(y))
         )
       )
     }
+  }
 
-  )
+  # Hypothesis testing columns
+  if (is.factor(y)) {
+    if (length(levels(y)) > 1) {
+      cols$p <- ''
+      if (show.test) cols$Test <- ''
+    }
+  }
+
+  # Return converted data.frame
+  if (requireNamespace('tibble', quietly = TRUE)) tibble::as_tibble(cols)
+  else as.data.frame(cols)
 
 }
 
@@ -102,18 +133,12 @@ build_row.data.frame <- function (
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param p.digits An integer. Optional. Number of p-value digits to report.
 #' @param ... Miscellaneous options.
-#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
-#' provided data.
+#' @return An object of class data.frame summarizing the provided data. If the
+#' \code{tibble} package has been installed, a tibble will be returned.
 #' @seealso \code{\link{build_row}}
 #' @examples
-#' library(dplyr)
-#'
-#' data_mtcars <- datasets::mtcars %>%
-#'   mutate_at(vars('vs', 'am'), as.logical) %>%
-#'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
-#'
 #' # Create a row summarizing a numeric by a factor
-#' build_row(x = data_mtcars$mpg, y = data_mtcars$cyl)
+#' build_row(x = datasets::mtcars$mpg, y = as.factor(datasets::mtcars$cyl))
 #' @export
 build_row.numeric <- function(
   x,
@@ -129,10 +154,7 @@ build_row.numeric <- function(
   ...
 ) {
 
-  # Convert logical by group to factor
-  if (is.logical(y) & length(y) > 1) y <- .explicit_na(as.factor(y))
-
-  # Statistic factory
+  # Statistic functions
   paste_stat_ <- function (...) {
     if (!parametric) utile.tools::paste_median(..., digits = digits)
     else utile.tools::paste_mean(..., digits = digits)
@@ -145,69 +167,86 @@ build_row.numeric <- function(
     )
   }
 
-  # Build row
-  dplyr::bind_cols(
 
-    # Variable label +/- statistic name
-    Variable = paste0(
-      label,
-      if (append.stat & !parametric) ', median[IQR]'
-      else if (append.stat & parametric) ', mean\u00B1SD'
-    ),
+  # Convert logical by group to factor
+  if (is.logical(y) & length(y) > 1) y <- .explicit_na(as.factor(y))
 
-    # Overall summary statistic
-    Overall = paste_stat_(x = x),
 
-    # Statistics for by levels
-    if (is.factor(y)) {
-      purrr::map(
+  # Create column object
+  cols <- list()
+
+  # Variable label +/- statistic name
+  cols$Variable <- paste0(
+    label,
+    if (append.stat & !parametric) ', median[IQR]'
+    else if (append.stat & parametric) ', mean\u00B1SD'
+  )
+
+  # Overall summary statistic
+  cols$Overall = paste_stat_(x = x)
+
+  # Statistics for by levels
+  if (is.factor(y)) {
+    cols <- c(
+      cols,
+      purrr::map_chr(
         rlang::set_names(levels(y)),
-        ~ paste_stat_(x = x[y == .x])
+        function (.y) paste_stat_(x = x[y == .y])
       )
-    },
+    )
+  }
 
-    if (show.missing) {
-      c(
+  # Missing
+  if (show.missing) {
 
-        # Missing overall
-        list(
-          `Missing: Overall` = paste_freq_(
-            x = length(x[is.na(x)]),
-            y = length(x)
-          )
-        ),
+    # Overall
+    cols$`Missing: Overall` = paste_freq_(
+      x = length(x[is.na(x)]),
+      y = length(x)
+    )
 
-        # Missing within by levels
-        if (is.factor(y)) {
-          purrr::map(
-            rlang::set_names(levels(y), paste('Missing:', levels(y))),
-            ~ paste_freq_(x = length(x[y == .x & is.na(x)]), y = length(x[y == .x]))
-          )
-        }
-
-      )
-    },
-
-    # Testing with by variable
+    # Within strata
     if (is.factor(y)) {
-      if (length(levels(y)) > 1) {
-        c(
-          list(
-            p = suppressWarnings(
-              utile.tools::test_hypothesis(
-                x = x, y = y, parametric = parametric, digits = digits,
-                p.digits = p.digits
-              )
+      cols <- c(
+        cols,
+        purrr::map(
+          rlang::set_names(levels(y), paste('Missing:', levels(y))),
+          function (.y) {
+            paste_freq_(
+              x = length(x[y == .y & is.na(x)]),
+              y = length(x[y == .y])
             )
-          ),
-          if (show.test) {
-            list(Test = if (!parametric) 'Wilcox {NP}' else 'Student\'s {P}')
           }
         )
-      }
+      )
     }
 
-  )
+  }
+
+  # Hypothesis testing
+  if (is.factor(y)) {
+    if (length(levels(y)) > 1) {
+
+      # P-values
+      cols$p <- suppressWarnings(
+        utile.tools::test_hypothesis(
+          x = x, y = y, parametric = parametric, digits = digits,
+          p.digits = p.digits
+        )
+      )
+
+      # Test used
+      if (show.test) {
+        cols$Test <- if (!parametric) 'Wilcox' else 'Student\'s'
+      }
+
+    }
+  }
+
+
+  # Return converted data.frame
+  if (requireNamespace('tibble', quietly = TRUE)) tibble::as_tibble(cols)
+  else as.data.frame(cols)
 
 }
 
@@ -236,18 +275,16 @@ build_row.numeric <- function(
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param p.digits An integer. Optional. Number of p-value digits to report.
 #' @param ... Miscellaneous options.
-#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
-#' provided data.
+#' @return An object of class data.frame summarizing the provided data. If the
+#' \code{tibble} package has been installed, a tibble will be returned.
 #' @seealso \code{\link{build_row}}
 #' @examples
-#' library(dplyr)
-#'
-#' data_mtcars <- datasets::mtcars %>%
-#'   mutate_at(vars('vs', 'am'), as.logical) %>%
-#'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
-#'
 #' # Create a row summarizing a logical by a factor
-#' build_row(x = data_mtcars$vs, y = data_mtcars$cyl)
+#' build_row(
+#'   x = as.logical(datasets::mtcars$vs),
+#'   y = as.factor(datasets::mtcars$cyl),
+#'   label = 'VS'
+#' )
 #' @export
 build_row.logical <- function (
   x,
@@ -265,9 +302,6 @@ build_row.logical <- function (
   ...
 ) {
 
-  # Set inverse, if applicable
-  if (inverse) x <- !x
-
   # Statistic factory
   paste_stat_ <- function (...) {
     utile.tools::paste_freq(
@@ -278,69 +312,86 @@ build_row.logical <- function (
     )
   }
 
-  # Build row
-  dplyr::bind_cols(
 
-    # Variable label +/- statistic name
-    Variable = paste0(
-      label,
-      if (!inverse) { ', yes' } else { ', no' },
-      if (append.stat) { ', n(%)' }
-    ),
+  # Set inverse, if applicable
+  if (inverse) x <- !x
 
-    # Overall summary statistic
-    Overall = paste_stat_(x = x[x], y = x),
 
-    # Statistics for by levels
-    if (is.factor(y)) {
+  # Create column object
+  cols <- list()
+
+  # Variable label +/- statistic name
+  cols$Variable <- paste0(
+    label,
+    if (!inverse) { ', yes' } else { ', no' },
+    if (append.stat) { ', n(%)' }
+  )
+
+  # Overall statistic
+  cols$Overall <- paste_stat_(x = x[x], y = x)
+
+  # Strata statistics
+  if (is.factor(y)) {
+    cols <- c(
+      cols,
       purrr::map(
         rlang::set_names(levels(y)),
-        ~ paste_stat_(x = x[x & y == .x], y = x[y == .x])
+        function (.y) paste_stat_(x = x[x & y == .y], y = x[y == .y])
       )
-    },
+    )
+  }
 
-    if (show.missing) {
-      c(
+  # Missing
+  if (show.missing) {
 
-        # Missing overall
-        list(
-          `Missing: Overall` = paste_stat_(
-            x = length(x[is.na(x)]),
-            y = length(x)
-          )
-        ),
+    # Overall
+    cols$`Missing: Overall` <- paste_stat_(
+      x = length(x[is.na(x)]),
+      y = length(x)
+    )
 
-        # Missing within by levels
-        if (is.factor(y)) {
-          purrr::map(
-            rlang::set_names(levels(y), paste('Missing:', levels(y))),
-            ~ paste_stat_(x = length(x[y == .x & is.na(x)]), y = length(x[y == .x]))
-          )
-        }
-
-      )
-    },
-
-    # Testing with by variable
+    # Within strata
     if (is.factor(y)) {
-      if (length(levels(y)) > 1) {
-        c(
-          list(
-            p = suppressWarnings(
-              utile.tools::test_hypothesis(
-                x = x, y = y, parametric = parametric, digits = digits,
-                p.digits = p.digits
-              )
+      cols <- c(
+        cols,
+        purrr::map(
+          rlang::set_names(levels(y), paste('Missing:', levels(y))),
+          function (.y) {
+            paste_stat_(
+              x = length(x[y == .y & is.na(x)]),
+              y = length(x[y == .y])
             )
-          ),
-          if (show.test) {
-            list(Test = if (!parametric) 'Chisq {NP}' else 'Fisher\'s {P}')
           }
         )
-      }
+      )
     }
 
-  )
+  }
+
+  # Hypothesis testing
+  if (is.factor(y)) {
+    if (length(levels(y)) > 1) {
+
+      # p-value
+      cols$p <- suppressWarnings(
+        utile.tools::test_hypothesis(
+          x = x, y = y, parametric = parametric, digits = digits,
+          p.digits = p.digits
+        )
+      )
+
+      # statistical tests
+      if (show.test) {
+        cols$Test <- if (!parametric) 'Chisq' else 'Fisher\'s'
+      }
+
+    }
+  }
+
+
+  # Return converted data.frame
+  if (requireNamespace('tibble', quietly = TRUE)) tibble::as_tibble(cols)
+  else as.data.frame(cols)
 
 }
 
@@ -367,18 +418,16 @@ build_row.logical <- function (
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param p.digits An integer. Optional. Number of p-value digits to report.
 #' @param ... Miscellaneous options.
-#' @return A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
-#' provided data.
+#' @return An object of class data.frame summarizing the provided data. If the
+#' \code{tibble} package has been installed, a tibble will be returned.
 #' @seealso \code{\link{build_row}}
 #' @examples
-#' library(dplyr)
-#'
-#' data_mtcars <- datasets::mtcars %>%
-#'   mutate_at(vars('vs', 'am'), as.logical) %>%
-#'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
-#'
 #' # Create a row summarizing a factor by a factor
-#' build_row(x = data_mtcars$carb, y = data_mtcars$cyl)
+#' build_row(
+#'   x = as.factor(mtcars$carb),
+#'   y = as.factor(mtcars$cyl),
+#'   label = 'Carb'
+#' )
 #' @export
 build_row.factor <- function (
   x,
@@ -395,7 +444,7 @@ build_row.factor <- function (
   ...
 ) {
 
-  # Statistic factory
+  # Statistic function
   paste_stat_ <- function (...) {
     utile.tools::paste_freq(
       ...,
@@ -405,27 +454,29 @@ build_row.factor <- function (
     )
   }
 
+
   # Level helpers
-  x_levels <- levels(x)
-  level_fill <- rep('', length(x_levels))
+  level_fill <- rep('', length((x_levels <- levels(x))))
 
-  # Build row
-  dplyr::bind_cols(
 
-    # Variable label +/- statistic name
-    Variable = c(
-      paste0(label, if (append.stat) { ', n(%)' }),
-      paste0('  ', x_levels)
-    ),
+  # Create column object
+  cols <- list()
 
-    # Overall summary statistic
-    Overall = c(
-      '',
-      purrr::map_chr(x_levels, ~ paste_stat_(x = x[x == .x], y = x))
-    ),
+  # Variable labels
+  cols$Variable <- c(
+    paste0(label, if (append.stat) { ', n(%)' }),
+    paste0('  ', x_levels)
+  )
 
-    # Statistics for by levels
-    if (is.factor(y)) {
+  # Overall summary statistic
+  cols$Overall <- c(
+    '',
+    purrr::map_chr(x_levels, function (.x) paste_stat_(x = x[x == .x], y = x))
+  )
+
+  if (is.factor(y)) {
+    cols <- c(
+      cols,
       purrr::map(
         rlang::set_names(levels(y)),
         function (.y) {
@@ -439,68 +490,65 @@ build_row.factor <- function (
           )
         }
       )
-    },
+    )
+  }
 
+  if (show.missing) {
 
-    if (show.missing) {
-      c(
+    # Missing overall
+    cols$`Missing: Overall` <- c(
+      paste_stat_(
+        x = length(x[is.na(x)]),
+        y = length(x)
+      ),
+      level_fill
+    )
 
-        # Missing overall
-        list(
-          `Missing: Overall` = c(
-            paste_stat_(
-              x = length(x[is.na(x)]),
-              y = length(x)
-            ),
-            level_fill
-          )
-        ),
-
-        # Missing within by levels
-        if (is.factor(y)) {
-          purrr::map(
-            rlang::set_names(levels(y), paste('Missing:', levels(y))),
-            ~ c(
-              paste_stat_(
-                x = length(x[y == .x & is.na(x)]),
-                y = length(x[y == .x])
-              ),
-              level_fill
-            )
-          )
-        }
-
-      )
-    },
-
-    # Testing with by variable
+    # Missing within by levels
     if (is.factor(y)) {
-      if (length(levels(y)) > 1) {
-        c(
-          list(
-            p = c(
-              suppressWarnings(
-                utile.tools::test_hypothesis(
-                  x = x, y = y, parametric = parametric, digits = digits,
-                  p.digits = p.digits
-                )
+      cols <- c(
+        cols,
+        purrr::map(
+          rlang::set_names(levels(y), paste('Missing:', levels(y))),
+          function (.y) {
+            c(
+              paste_stat_(
+                x = length(x[y == .y & is.na(x)]),
+                y = length(x[y == .y])
               ),
               level_fill
-            )
-          ),
-          if (show.test) {
-            list(
-              Test = c(
-                if (!parametric) 'Chisq {NP}' else 'Fisher\'s {P}',
-                level_fill
-              )
             )
           }
         )
-      }
+      )
     }
+  }
 
-  )
+  # Testing with by variable
+  if (is.factor(y)) {
+    if (length(levels(y)) > 1) {
+
+      cols$p <- c(
+        suppressWarnings(
+          utile.tools::test_hypothesis(
+            x = x, y = y, parametric = parametric, digits = digits,
+            p.digits = p.digits
+          )
+        ),
+        level_fill
+      )
+
+      if (show.test) {
+        cols$Test <- c(if (!parametric) 'Chisq' else 'Fisher\'s Exact', level_fill)
+      }
+
+    }
+  }
+
+
+  # Return converted data.frame
+  if (requireNamespace('tibble', quietly = TRUE)) tibble::as_tibble(cols)
+  else as.data.frame(cols)
 
 }
 

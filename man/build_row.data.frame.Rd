@@ -4,7 +4,16 @@
 \alias{build_row.data.frame}
 \title{Summarize a data.frame or tibble}
 \usage{
-\method{build_row}{data.frame}(x, y, label = "n(\%)", percent.sign = TRUE, digits = 1, ...)
+\method{build_row}{data.frame}(
+  x,
+  y,
+  label = "n(\%)",
+  show.missing = FALSE,
+  show.test = FALSE,
+  percent.sign = TRUE,
+  digits = 1,
+  ...
+)
 }
 \arguments{
 \item{x}{An data.frame object. Data to summarize. Must be the same length as
@@ -14,6 +23,10 @@
 
 \item{label}{A character. Optional. The name of the summarized variable.}
 
+\item{show.missing}{A logical. Optional. Append an empty missing data column.}
+
+\item{show.test}{A logical. Optional. Append empty test and statistic columns.}
+
 \item{percent.sign}{A logical. Optional. Paste a percentage symbol with each
 frequency.}
 
@@ -22,20 +35,17 @@ frequency.}
 \item{...}{Miscellaneous options.}
 }
 \value{
-A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
-provided data.
+An object of class data.frame summarizing the provided data. If the
+\code{tibble} package has been installed, a tibble will be returned.
 }
 \description{
 Summarize a data.frame (row counts). Optional stratification
 using a factor or logical with the same size as the tibble.
 }
 \examples{
-library(dplyr)
-
-data_mtcars <- datasets::mtcars \%>\%
-  mutate_at(vars('vs', 'am'), as.logical) \%>\%
-  mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
-
 # Create a "count" row from a data.frame
-build_row(x = data_mtcars, y = data_mtcars$cyl)
+build_row(
+  x = datasets::mtcars,
+  y = as.factor(datasets::mtcars$cyl)
+)
 }

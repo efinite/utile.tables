@@ -55,8 +55,8 @@ reported frequencies.}
 \item{.p.digits}{An integer. Optional. The number of p-value digits to report.}
 }
 \value{
-A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
-provided object.
+An object of class data.frame summarizing the provided object. If the
+\code{tibble} package has been installed, a tibble will be returned.
 }
 \description{
 Takes a data.frame object and summarizes the columns into a

@@ -23,7 +23,7 @@
 columns in the model data.frame. May be specified using
 \code{\link[tidyselect:select_helpers]{tidyselect helpers}}.}
 
-\item{.mv}{A logical. Fit all terms into a single multivariate model. If left
+\item{.mv}{A logical. Fit all terms into a single multivariable model. If left
 FALSE, all terms are fit in their own univariate models.}
 
 \item{.test}{A character. The name of a \code{\link[stats:add1]{stats::drop1}}
@@ -44,8 +44,8 @@ that the p-value still rounded to the number of digits specified in
 \code{.digits}.}
 }
 \value{
-A \code{\link[tibble:tibble]{tibble::tibble()}} summarizing the
-new models.
+An object of class data.frame summarizing the provided object. If the
+\code{tibble} package has been installed, a tibble will be returned.
 }
 \description{
 Models specified terms in model data against an existing model
