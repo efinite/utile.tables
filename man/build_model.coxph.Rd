@@ -64,7 +64,7 @@ data_lung <- lung \%>\%
 fit <- coxph(Surv(time, status) ~ 1, data = data_lung)
 
 # Create a univariate model for each variable
-build_model(.object = fit, sex, age)
+fit \%>\% build_model(sex, age)
 }
 \seealso{
 \code{\link{build_model}}

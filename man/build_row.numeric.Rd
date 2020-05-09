@@ -56,7 +56,11 @@ null hypothesis testing using another factor or logical.
 }
 \examples{
 # Create a row summarizing a numeric by a factor
-build_row(x = datasets::mtcars$mpg, y = as.factor(datasets::mtcars$cyl))
+build_row(
+ x = datasets::mtcars$mpg,
+ y = as.factor(datasets::mtcars$cyl),
+ label = 'MPG'
+)
 }
 \seealso{
 \code{\link{build_row}}

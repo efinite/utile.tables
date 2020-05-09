@@ -62,9 +62,9 @@ null hypothesis testing using another factor or logical.
 \examples{
 # Create a row summarizing a factor by a factor
 build_row(
-  x = as.factor(mtcars$carb),
-  y = as.factor(mtcars$cyl),
-  label = 'Carb'
+ x = as.factor(mtcars$carb),
+ y = as.factor(mtcars$cyl),
+ label = 'Carb'
 )
 }
 \seealso{

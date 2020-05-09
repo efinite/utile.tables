@@ -43,9 +43,6 @@ Summarize a data.frame (row counts). Optional stratification
 using a factor or logical with the same size as the tibble.
 }
 \examples{
-# Create a "count" row from a data.frame
-build_row(
-  x = datasets::mtcars,
-  y = as.factor(datasets::mtcars$cyl)
-)
+# Create a "count" row from a data.frame for a factor
+build_row(x = datasets::mtcars, y = as.factor(datasets::mtcars$cyl))
 }

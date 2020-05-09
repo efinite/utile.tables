@@ -37,11 +37,8 @@ build_row.default <- function (x, label = NULL, ...) {
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @examples
-#' # Create a "count" row from a data.frame
-#' build_row(
-#'   x = datasets::mtcars,
-#'   y = as.factor(datasets::mtcars$cyl)
-#' )
+#' # Create a "count" row from a data.frame for a factor
+#' build_row(x = datasets::mtcars, y = as.factor(datasets::mtcars$cyl))
 #' @export
 build_row.data.frame <- function (
   x,
@@ -137,7 +134,11 @@ build_row.data.frame <- function (
 #' @seealso \code{\link{build_row}}
 #' @examples
 #' # Create a row summarizing a numeric by a factor
-#' build_row(x = datasets::mtcars$mpg, y = as.factor(datasets::mtcars$cyl))
+#' build_row(
+#'  x = datasets::mtcars$mpg,
+#'  y = as.factor(datasets::mtcars$cyl),
+#'  label = 'MPG'
+#' )
 #' @export
 build_row.numeric <- function(
   x,
@@ -421,9 +422,9 @@ build_row.logical <- function (
 #' @examples
 #' # Create a row summarizing a factor by a factor
 #' build_row(
-#'   x = as.factor(mtcars$carb),
-#'   y = as.factor(mtcars$cyl),
-#'   label = 'Carb'
+#'  x = as.factor(mtcars$carb),
+#'  y = as.factor(mtcars$cyl),
+#'  label = 'Carb'
 #' )
 #' @export
 build_row.factor <- function (
