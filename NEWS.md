@@ -1,6 +1,9 @@
 # 0.2.1
 * Removed methods dependency, opting for base R's `match.call`.
 * Micro-optimizations to performance of the `build_row` and `build_table` functions.
+* Fixed character casting issue in `build_table.coxph` that would cause p-value rounding to fail when the given p-value was in scientific notation.
+* Fixed broken filter in `build_model` that was not removing existing model terms from the list of terms to build models from.
+* Added re-exports for the tidyselect helpers.
 
 # 0.2.0
 * Replaced `build_event_table()` & `build_event_rows()` with `build_model()` which has an S3 method for coxph models and uses tidyselect syntax. Plain formulas and survfit objects are no longer supported.

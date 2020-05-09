@@ -217,7 +217,7 @@ build_table.coxph <- function(
     nsmall = .p.digits,
     scientific = F,
     na.form = ''
-  ) # casts other columns to character as well...
+  ) # side-effect: other cols also cast to character
 
   # Tabulate & format special tests
   tests <- stats::drop1(
@@ -234,7 +234,7 @@ build_table.coxph <- function(
     nsmall = .p.digits,
     scientific = F,
     na.form = ''
-  ) # casts other columns to character as well...
+  ) # side-effect: other cols also cast to character
 
   # Generate table
   table <- purrr::imap_dfr(
@@ -427,7 +427,7 @@ build_table.lm <- function(
     nsmall = .p.digits,
     scientific = F,
     na.form = ''
-  ) # casts other columns to character as well...
+  ) # side-effect: other cols also cast to character
 
   # Tabulate & format special tests
   tests <- stats::drop1(
@@ -443,7 +443,7 @@ build_table.lm <- function(
     nsmall = .p.digits,
     scientific = F,
     na.form = ''
-  ) # casts other columns to character as well...
+  ) # side-effect: other cols also cast to character
 
   # Generate table
   table <- purrr::imap_dfr(
