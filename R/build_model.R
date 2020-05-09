@@ -74,7 +74,7 @@ build_model.coxph <- function(
 
   # Retrieve data.frame from call
   data <- eval(.object$call$data)
-  base_formula <- deparse(stats::formula(.object))
+  base_formula <- stats::formula(.object)
 
   # Column selection
   terms <- if (rlang::dots_n(...) > 0) {
@@ -83,11 +83,9 @@ build_model.coxph <- function(
     rlang::set_names(x = 1:length(names(data)), nm = names(data))
   }
 
-  # Ignore terms already in fit
-  terms <- terms[!(names(terms) %in% all.vars(.object))]
-
   # Ignore unusable terms
   terms <- terms[
+    !(names(terms) %in% all.vars(base_formula)) &
     purrr::imap_lgl(
       terms,
       ~ {
@@ -97,6 +95,9 @@ build_model.coxph <- function(
       }
     )
   ]
+
+  # Convert formula to character
+  base_formula <- deparse(base_formula)
 
   # build_table factory with pre-specified defaults
   build_table_ <- function(...) {
