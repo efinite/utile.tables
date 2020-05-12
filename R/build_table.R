@@ -204,12 +204,16 @@ build_table.coxph <- function(
   .test <- match.arg(.test)
 
   # Tabulate & format estimates
-  estimates <- cbind(
-    summary(.object)$coefficients,
-    stats::confint(.object, level = .level)
+  estimates <- as.data.frame(
+    cbind(
+      summary(.object)$coefficients,
+      stats::confint(.object, level = .level)
+    )
   )
   estimates[,6:7] <- exp(estimates[,6:7])
-  estimates[,c(2,4,6,7)] <- round(estimates[,c(2,4,6,7)], digits = .digits)
+  estimates[,c(2,4,6,7)] <- as.character(
+    round(estimates[,c(2,4,6,7)], digits = .digits)
+  )
   estimates[,5] <- format.pval(
     pv = estimates[,5],
     digits = .digits,
@@ -217,16 +221,18 @@ build_table.coxph <- function(
     nsmall = .p.digits,
     scientific = F,
     na.form = ''
-  ) # side-effect: other cols also cast to character
+  )
 
   # Tabulate & format special tests
-  tests <- stats::drop1(
-    if (any(is.na(eval(.object$call$data)[all.vars(stats::formula(.object))]))) {
-      .refit_model(x = .object, na.rm = TRUE)
-    } else .object,
-    test = 'Chisq'
+  tests <- as.data.frame(
+    stats::drop1(
+      if (any(is.na(eval(.object$call$data)[all.vars(stats::formula(.object))]))) {
+        .refit_model(x = .object, na.rm = TRUE)
+      } else .object,
+      test = 'Chisq'
+    )
   )[terms + 1, 3:4]
-  tests[,1] <- round(tests[,1], digits = .digits)
+  tests[,1] <- as.character(round(tests[,1], digits = .digits))
   tests[,2] <- format.pval(
     pv = tests[,2],
     digits = .digits,
@@ -234,7 +240,7 @@ build_table.coxph <- function(
     nsmall = .p.digits,
     scientific = F,
     na.form = ''
-  ) # side-effect: other cols also cast to character
+  )
 
   # Generate table
   table <- purrr::imap_dfr(
@@ -415,11 +421,15 @@ build_table.lm <- function(
   .test <- match.arg(.test)
 
   # Tabulate & format estimates
-  estimates <- cbind(
-    summary(.object)$coefficients,
-    stats::confint(.object, level = .level)
+  estimates <- as.data.frame(
+    cbind(
+      summary(.object)$coefficients,
+      stats::confint(.object, level = .level)
+    )
   )
-  estimates[,c(1,3,5,6)] <- round(estimates[,c(1,3,5,6)], digits = .digits)
+  estimates[,c(1,3,5,6)] <- as.character(
+    round(estimates[,c(1,3,5,6)], digits = .digits)
+  )
   estimates[,4] <- format.pval(
     pv = estimates[,4],
     digits = .digits,
@@ -427,14 +437,16 @@ build_table.lm <- function(
     nsmall = .p.digits,
     scientific = F,
     na.form = ''
-  ) # side-effect: other cols also cast to character
+  )
 
   # Tabulate & format special tests
-  tests <- stats::drop1(
-    .object,
-    test = .test
+  tests <- as.data.frame(
+    stats::drop1(
+      .object,
+      test = .test
+    )
   )[terms + 1, if (.test == 'Chisq') 5 else 5:6]
-  if (.test == 'F') tests[,1] <- round(tests[,1], digits = .digits)
+  if (.test == 'F') tests[,1] <- as.character(round(tests[,1], digits = .digits))
   else tests <- cbind(stat = '', tests)
   tests[,2] <- format.pval(
     pv = tests[,2],
@@ -443,7 +455,7 @@ build_table.lm <- function(
     nsmall = .p.digits,
     scientific = F,
     na.form = ''
-  ) # side-effect: other cols also cast to character
+  )
 
   # Generate table
   table <- purrr::imap_dfr(
