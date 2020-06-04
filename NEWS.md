@@ -1,8 +1,8 @@
 # 0.2.1
 * Removed methods dependency, opting for base R's `match.call`.
 * Micro-optimizations to performance of the `build_row` and `build_table` functions.
-* Fixed character casting issue in `build_table.coxph` that would cause p-value rounding to fail when the given p-value was in scientific notation.
-* Fixed broken filter in `build_model` that was not removing existing model terms from the list of terms to build models from.
+* Fixed character casting issue in `build_table.coxph` that would cause p-value rounding to fail when the p-value was in scientific notation.
+* Fixed broken filter in `build_model` that was not removing existing model terms from the list of interest.
 * Added re-exports for the tidyselect helpers.
 
 # 0.2.0
