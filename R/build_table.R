@@ -211,9 +211,7 @@ build_table.coxph <- function(
     )
   )
   estimates[,6:7] <- exp(estimates[,6:7])
-  estimates[,c(2,4,6,7)] <- as.character(
-    round(estimates[,c(2,4,6,7)], digits = .digits)
-  )
+  estimates[,-5] <- round(estimates[,-5], digits = .digits)
   estimates[,5] <- format.pval(
     pv = estimates[,5],
     digits = .digits,
@@ -222,6 +220,8 @@ build_table.coxph <- function(
     scientific = F,
     na.form = ''
   )
+  estimates[] <- lapply(estimates, as.character)
+
 
   # Tabulate & format special tests
   tests <- as.data.frame(
@@ -232,7 +232,7 @@ build_table.coxph <- function(
       test = 'Chisq'
     )
   )[terms + 1, 3:4]
-  tests[,1] <- as.character(round(tests[,1], digits = .digits))
+  tests[,-2] <- round(tests[,-2], digits = .digits)
   tests[,2] <- format.pval(
     pv = tests[,2],
     digits = .digits,
@@ -241,6 +241,8 @@ build_table.coxph <- function(
     scientific = F,
     na.form = ''
   )
+  tests[] <- lapply(tests, as.character)
+
 
   # Generate table
   table <- purrr::imap_dfr(
@@ -427,9 +429,7 @@ build_table.lm <- function(
       stats::confint(.object, level = .level)
     )
   )
-  estimates[,c(1,3,5,6)] <- as.character(
-    round(estimates[,c(1,3,5,6)], digits = .digits)
-  )
+  estimates[,-4] <- round(estimates[,-4], digits = .digits)
   estimates[,4] <- format.pval(
     pv = estimates[,4],
     digits = .digits,
@@ -438,6 +438,7 @@ build_table.lm <- function(
     scientific = F,
     na.form = ''
   )
+  estimates[] <- lapply(estimates, as.character)
 
   # Tabulate & format special tests
   tests <- as.data.frame(
@@ -446,7 +447,7 @@ build_table.lm <- function(
       test = .test
     )
   )[terms + 1, if (.test == 'Chisq') 5 else 5:6]
-  if (.test == 'F') tests[,1] <- as.character(round(tests[,1], digits = .digits))
+  if (.test == 'F') tests[,-2] <- round(tests[,-2], digits = .digits)
   else tests <- cbind(stat = '', tests)
   tests[,2] <- format.pval(
     pv = tests[,2],
@@ -456,6 +457,7 @@ build_table.lm <- function(
     scientific = F,
     na.form = ''
   )
+  tests[] <- lapply(tests, as.character)
 
   # Generate table
   table <- purrr::imap_dfr(
