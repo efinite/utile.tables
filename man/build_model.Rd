@@ -18,7 +18,7 @@ object.
 \description{
 Models specified terms in model data against an existing model
 and returns a clean, human readable table of summarizing the effects and
-statistics for the newly generated model. This functions greatly simplifies
+statistics for the newly generated model. This function is meant to simplify
 fitting a large number of variables against a set of time-to-event data.
 }
 \seealso{
