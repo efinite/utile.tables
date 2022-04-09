@@ -16,4 +16,4 @@ Imports:
   utile.tools (>= 0.2.5)
 Suggests:
   survival
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.2
