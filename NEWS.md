@@ -1,3 +1,6 @@
+# 0.2.2
+* Fixed CRAN LazyData error
+
 # 0.2.1
 * Removed methods dependency, opting for base R's `match.call`.
 * Micro-optimizations to performance of the `build_row` and `build_table` functions.
