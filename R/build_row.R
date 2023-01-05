@@ -1,5 +1,5 @@
 #' @title Build summary rows
-#' @description Summarize a data into a data.frame row(s). Optional
+#' @description Summarize data into a data.frame with row(s). Optional
 #' stratification and null hypothesis testing using a factor or logical.
 #' @param x An object of a supported class. See S3 methods below.
 #' @param ... Arguments passed to the appropriate S3 method.
@@ -16,7 +16,7 @@ build_row <- function (x, ...) UseMethod('build_row')
 
 #' @export
 build_row.default <- function (x, label = NULL, ...) {
-  warning('Warning: \'', label, '\' <', class(x), '> not summarizable. Ignoring.')
+  warning('Warning: \'', label, '\' <', class(x), '> not summarizable. Skipping.')
   NULL
 }
 
@@ -363,8 +363,8 @@ build_row.logical <- function (
 #' @examples
 #' # Create a row summarizing a factor by a factor
 #' build_row(
-#'  x = as.factor(mtcars$carb),
-#'  y = as.factor(mtcars$cyl),
+#'  x = as.factor(datasets::mtcars$carb),
+#'  y = as.factor(datasets::mtcars$cyl),
 #'  label = 'Carb'
 #' )
 #' @export
