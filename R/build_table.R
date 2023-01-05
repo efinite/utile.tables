@@ -37,8 +37,6 @@ build_table.default <- function (.object, ...) {
 #' frequencies of missing data for each row.
 #' @param .show.test A logical. Optional. Append a column containing the test
 #' each p-value was derived from.
-#' @param .na.rm A logical. Optional. Ignore NA values when calculating
-#' frequencies for logical and factor data types.
 #' @param .percent.sign A logical. Optional. Paste a percent symbol after all
 #' reported frequencies.
 #' @param .digits An integer. Optional. The number of digits to round numbers to.
@@ -71,7 +69,6 @@ build_table.data.frame <- function(
   .parametric = FALSE,
   .show.missing = FALSE,
   .show.test = FALSE,
-  .na.rm = TRUE,
   .percent.sign = TRUE,
   .digits = 1,
   .p.digits = 4
@@ -115,7 +112,6 @@ build_table.data.frame <- function(
       parametric = .parametric,
       show.missing = .show.missing,
       show.test = .show.test,
-      na.rm = .na.rm,
       percent.sign = .percent.sign,
       digits = .digits,
       p.digits = .p.digits

@@ -42,7 +42,7 @@ build_row.default <- function (x, label = NULL, ...) {
 #' @export
 build_row.data.frame <- function (
   x,
-  y,
+  y = NA,
   label = 'n(%)',
   show.missing = FALSE,
   show.test = FALSE,
@@ -51,9 +51,8 @@ build_row.data.frame <- function (
   ...
 ) {
 
-  # Convert logical by group to factor
-  if (is.logical(y) & length(y) > 1) y <- .explicit_na(as.factor(y))
-
+  # Retrieve by variable levels
+  y_levels <- .get_levels(y)
 
   # Build row
   cols <- list()
@@ -65,15 +64,16 @@ build_row.data.frame <- function (
   cols$Overall <- as.character((overall_cnt <- nrow(x)))
 
   # Frequencies by level
-  if (is.factor(y)) {
+  if (length(y_levels) > 0) {
     cols <- c(
       cols,
       purrr::map(
-        sort(rlang::set_names(levels(y))),
+        y_levels,
         function (.y) {
           utile.tools::paste_freq(
-            x = nrow(x[y == .y,]),
+            x = nrow(x[y == .y & !is.na(y),]),
             y = overall_cnt,
+            na.rm = FALSE,
             percent.sign = percent.sign,
             digits = digits
           )
@@ -82,26 +82,21 @@ build_row.data.frame <- function (
     )
   }
 
-  # Missing count columns
+  # Missing
   if (show.missing) {
-    cols$`Missing: Overall` <- ''
-    if (is.factor(y)) {
-      cols <- c(
-        cols,
-        rlang::set_names(
-          rep('', length(levels(y))),
-          paste('Missing:', levels(y))
-        )
-      )
-    }
+    cols$Missing <- utile.tools::paste_freq(
+      x = y[is.na(y)],
+      y = y,
+      na.rm = FALSE,
+      percent.sign = percent.sign,
+      digits = digits
+    )
   }
 
   # Hypothesis testing columns
-  if (is.factor(y)) {
-    if (length(levels(y)) > 1) {
-      cols$p <- ''
-      if (show.test) cols$Test <- ''
-    }
+  if (length(y_levels) > 1) {
+    cols$p <- ''
+    if (show.test) cols$Test <- ''
   }
 
   # Return converted tibble
@@ -159,18 +154,18 @@ build_row.numeric <- function(
     if (!parametric) utile.tools::paste_median(..., digits = digits)
     else utile.tools::paste_mean(..., digits = digits)
   }
+
   paste_freq_ <- function (...) {
     utile.tools::paste_freq(
       ...,
+      na.rm = FALSE,
       percent.sign = percent.sign,
       digits = digits
     )
   }
 
-
-  # Convert logical by group to factor
-  if (is.logical(y) & length(y) > 1) y <- .explicit_na(as.factor(y))
-
+  # Retrieve by variable levels
+  y_levels <- .get_levels(y)
 
   # Create column object
   cols <- list()
@@ -186,61 +181,35 @@ build_row.numeric <- function(
   cols$Overall = paste_stat_(x = x)
 
   # Statistics for by levels
-  if (is.factor(y)) {
+  if (length(y_levels) > 0) {
     cols <- c(
       cols,
       purrr::map_chr(
-        rlang::set_names(levels(y)),
-        function (.y) paste_stat_(x = x[y == .y])
+        y_levels,
+        function (.y) paste_stat_(x = x[!is.na(x) & y %in% .y])
       )
     )
   }
 
   # Missing
   if (show.missing) {
-
-    # Overall
-    cols$`Missing: Overall` = paste_freq_(
-      x = length(x[is.na(x)]),
-      y = length(x)
-    )
-
-    # Within strata
-    if (is.factor(y)) {
-      cols <- c(
-        cols,
-        purrr::map(
-          rlang::set_names(levels(y), paste('Missing:', levels(y))),
-          function (.y) {
-            paste_freq_(
-              x = length(x[y == .y & is.na(x)]),
-              y = length(x[y == .y])
-            )
-          }
-        )
-      )
-    }
-
+    cols$Missing <- paste_freq_(x = sum(is.na(x)), y = length(x))
   }
 
   # Hypothesis testing
-  if (is.factor(y)) {
-    if (length(levels(y)) > 1) {
+  if (length(y_levels) > 1) {
 
-      # P-values
-      cols$p <- suppressWarnings(
-        utile.tools::test_hypothesis(
-          x = x, y = y, parametric = parametric, digits = digits,
-          p.digits = p.digits
-        )
+    # P-values
+    cols$p <- suppressWarnings(
+      utile.tools::test_hypothesis(
+        x = x, y = y, parametric = parametric, digits = digits,
+        p.digits = p.digits
       )
+    )
 
-      # Test used
-      if (show.test) {
-        cols$Test <- if (!parametric) 'Wilcox' else 'Student\'s'
-      }
+    # Test used
+    if (show.test) cols$Test <- if (!parametric) 'Wilcox' else 'Student\'s'
 
-    }
   }
 
 
@@ -260,9 +229,6 @@ build_row.numeric <- function(
 #' @param inverse A logical. Optional. Report frequencies of the \code{FALSE}
 #' values instead.
 #' @param parametric A logical. Optional. Use parametric tests.
-#' @param na.rm A logical. Optional. Whether to ignore NA values in frequency
-#' calculations. If left unspecified, NA values will be given an explicit level
-#' and summarized.
 #' @param append.stat A logical. Optional. Append the summary statistic used to
 #' the label of the summarized row.
 #' @param show.missing A logical. Optional. Append summary counts of missing
@@ -291,7 +257,6 @@ build_row.logical <- function (
   label = '(Unlabeled column)',
   inverse = FALSE,
   parametric = FALSE,
-  na.rm = FALSE,
   append.stat = TRUE,
   show.missing = FALSE,
   show.test = FALSE,
@@ -305,16 +270,17 @@ build_row.logical <- function (
   paste_stat_ <- function (...) {
     utile.tools::paste_freq(
       ...,
-      na.rm,
+      na.rm = FALSE,
       percent.sign = percent.sign,
       digits = digits
     )
   }
 
+  # Retrieve by variable levels
+  y_levels <- .get_levels(y)
 
   # Set inverse, if applicable
   if (inverse) x <- !x
-
 
   # Create column object
   cols <- list()
@@ -327,66 +293,44 @@ build_row.logical <- function (
   )
 
   # Overall statistic
-  cols$Overall <- paste_stat_(x = x[x], y = x)
+  cols$Overall <- paste_stat_(x = x[x & !is.na(x)], y = x)
 
   # Strata statistics
-  if (is.factor(y)) {
+  if (length(y_levels) > 0) {
     cols <- c(
       cols,
       purrr::map(
-        rlang::set_names(levels(y)),
-        function (.y) paste_stat_(x = x[x & y == .y], y = x[y == .y])
+        y_levels,
+        function (.y) {
+          paste_stat_(
+            x = x[(x & !is.na(x)) & (y %in% .y)],
+            y = x[y %in% .y]
+          )
+        }
       )
     )
   }
 
   # Missing
   if (show.missing) {
-
-    # Overall
-    cols$`Missing: Overall` <- paste_stat_(
-      x = length(x[is.na(x)]),
-      y = length(x)
-    )
-
-    # Within strata
-    if (is.factor(y)) {
-      cols <- c(
-        cols,
-        purrr::map(
-          rlang::set_names(levels(y), paste('Missing:', levels(y))),
-          function (.y) {
-            paste_stat_(
-              x = length(x[y == .y & is.na(x)]),
-              y = length(x[y == .y])
-            )
-          }
-        )
-      )
-    }
-
+    cols$Missing <- paste_stat_(x = x[is.na(x)], y = x)
   }
 
   # Hypothesis testing
-  if (is.factor(y)) {
-    if (length(levels(y)) > 1) {
+  if (length(y_levels) > 1) {
 
-      # p-value
-      cols$p <- suppressWarnings(
-        utile.tools::test_hypothesis(
-          x = x, y = y, parametric = parametric, digits = digits,
-          p.digits = p.digits
-        )
+    # p-value
+    cols$p <- suppressWarnings(
+      utile.tools::test_hypothesis(
+        x = x, y = y, parametric = parametric, digits = digits,
+        p.digits = p.digits
       )
+    )
 
-      # statistical tests
-      if (show.test) {
-        cols$Test <- if (!parametric) 'Chisq' else 'Fisher\'s'
-      }
+    # statistical tests
+    if (show.test) cols$Test <- if (!parametric) 'Chisq' else 'Fisher\'s'
 
-    }
   }
-
 
   # Return converted tibble
   dplyr::as_tibble(cols)
@@ -402,9 +346,6 @@ build_row.logical <- function (
 #' @param y A factor or logical. Optional. Data to stratify \code{x} by.
 #' @param label A character. Optional. The name of the summarized variable.
 #' @param parametric A logical. Optional. Use parametric tests.
-#' @param na.rm A logical. Optional. Whether to ignore NA values in frequency
-#' calculations. If left unspecified, NA values will be given an explicit level
-#' and summarized.
 #' @param append.stat A logical. Optional. Append the summary statistic used to
 #' the label of the summarized row.
 #' @param show.missing A logical. Optional. Append summary counts of missing
@@ -432,7 +373,6 @@ build_row.factor <- function (
   y = NA,
   label = '(Unlabeled column)',
   parametric = FALSE,
-  na.rm = FALSE,
   append.stat = TRUE,
   show.missing = FALSE,
   show.test = FALSE,
@@ -446,16 +386,19 @@ build_row.factor <- function (
   paste_stat_ <- function (...) {
     utile.tools::paste_freq(
       ...,
-      na.rm = na.rm,
+      na.rm = FALSE,
       percent.sign = percent.sign,
       digits = digits
     )
   }
 
+  # Retrieve y variable levels
+  y_levels <- .get_levels(y)
 
-  # Level helpers
-  level_fill <- rep('', length((x_levels <- levels(x))))
-
+  # Identify x levels, make any NA explicit
+  x_levels <- .get_levels(x)
+  if (any(is.na(x))) x_levels <- c(x_levels, "Missing" = NA)
+  level_fill <- rep('', length(x_levels))
 
   # Create column object
   cols <- list()
@@ -463,86 +406,61 @@ build_row.factor <- function (
   # Variable labels
   cols$Variable <- c(
     paste0(label, if (append.stat) { ', n(%)' }),
-    paste0('  ', x_levels)
+    paste0('  ', names(x_levels))
   )
 
   # Overall summary statistic
   cols$Overall <- c(
     '',
-    purrr::map_chr(x_levels, function (.x) paste_stat_(x = x[x == .x], y = x))
+    purrr::map_chr(x_levels, function (.x) {
+      paste_stat_(x = x[x %in% .x], y = x)
+    })
   )
 
-  if (is.factor(y)) {
+  if (length(y_levels) > 0) {
     cols <- c(
       cols,
       purrr::map(
-        rlang::set_names(levels(y)),
+        y_levels,
         function (.y) {
-          purrr::map_chr(
-            c(NA, x_levels),
-            function (.x) {
-              if (!is.na(.x)) {
-                paste_stat_(x = x[x == .x & y == .y], y = x[y == .y])
-              } else ''
-            }
+          c(
+            '',
+            purrr::map_chr(
+              x_levels,
+              function (.x) {
+                paste_stat_(
+                  x = x[x %in% .x & y %in% .y],
+                  y = x[y %in% .y]
+                )
+              }
+            )
           )
         }
       )
     )
   }
 
+  # Show missing count
   if (show.missing) {
+    cols$Missing <- c(paste_stat_(x = x[is.na(x)], y = x), level_fill)
+  }
 
-    # Missing overall
-    cols$`Missing: Overall` <- c(
-      paste_stat_(
-        x = length(x[is.na(x)]),
-        y = length(x)
+  # Testing with by variable
+  if (length(y_levels) > 1) {
+
+    cols$p <- c(
+      suppressWarnings(
+        utile.tools::test_hypothesis(
+          x = x, y = y, parametric = parametric, digits = digits,
+          p.digits = p.digits
+        )
       ),
       level_fill
     )
 
-    # Missing within by levels
-    if (is.factor(y)) {
-      cols <- c(
-        cols,
-        purrr::map(
-          rlang::set_names(levels(y), paste('Missing:', levels(y))),
-          function (.y) {
-            c(
-              paste_stat_(
-                x = length(x[y == .y & is.na(x)]),
-                y = length(x[y == .y])
-              ),
-              level_fill
-            )
-          }
-        )
-      )
-    }
+    if (show.test) cols$Test <- c(if (!parametric) 'Chisq' else 'Fisher\'s Exact', level_fill)
+
   }
-
-  # Testing with by variable
-  if (is.factor(y)) {
-    if (length(levels(y)) > 1) {
-
-      cols$p <- c(
-        suppressWarnings(
-          utile.tools::test_hypothesis(
-            x = x, y = y, parametric = parametric, digits = digits,
-            p.digits = p.digits
-          )
-        ),
-        level_fill
-      )
-
-      if (show.test) {
-        cols$Test <- c(if (!parametric) 'Chisq' else 'Fisher\'s Exact', level_fill)
-      }
-
-    }
-  }
-
 
   # Return converted tibble
   dplyr::as_tibble(cols)
