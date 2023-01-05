@@ -46,7 +46,7 @@ build_row.data.frame <- function (
   label = 'n(%)',
   show.missing = FALSE,
   show.test = FALSE,
-  percent.sign = TRUE,
+  percent.sign = FALSE,
   digits = 1,
   ...
 ) {
@@ -143,7 +143,7 @@ build_row.numeric <- function(
   append.stat = TRUE,
   show.missing = FALSE,
   show.test = FALSE,
-  percent.sign = TRUE,
+  percent.sign = FALSE,
   digits = 1,
   p.digits = 4,
   ...
@@ -260,7 +260,7 @@ build_row.logical <- function (
   append.stat = TRUE,
   show.missing = FALSE,
   show.test = FALSE,
-  percent.sign = TRUE,
+  percent.sign = FALSE,
   digits = 1,
   p.digits = 4,
   ...
@@ -376,7 +376,7 @@ build_row.factor <- function (
   append.stat = TRUE,
   show.missing = FALSE,
   show.test = FALSE,
-  percent.sign = TRUE,
+  percent.sign = FALSE,
   digits = 1,
   p.digits = 4,
   ...
