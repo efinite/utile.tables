@@ -8,7 +8,7 @@
 #' \code{\link{build_table.coxph}},
 #' \code{\link{build_table.lm}}
 #' @export
-build_table <- function(.object, ...) { UseMethod('build_table') }
+build_table <- function (.object, ...) { UseMethod('build_table') }
 
 
 #' @export
@@ -60,7 +60,7 @@ build_table.default <- function (.object, ...) {
 #' # Summarize & rename selected columns
 #' build_table(df, Numeric = numeric2, Factor = factor, .by = strata)
 #' @export
-build_table.data.frame <- function(
+build_table.data.frame <- function (
   .object,
   ...,
   .by,
@@ -164,7 +164,7 @@ build_table.data.frame <- function(
 #'
 #' fit %>% build_table(Sex = sex, Calories = meal.cal, .test = 'LRT')
 #' @export
-build_table.coxph <- function(
+build_table.coxph <- function (
   .object,
   ...,
   .test = c('LRT', 'Wald'),
@@ -377,7 +377,7 @@ build_table.coxph <- function(
 #'
 #' fit %>% build_table()
 #' @export
-build_table.lm <- function(
+build_table.lm <- function (
   .object,
   ...,
   .test = c('F', 'Chisq'),

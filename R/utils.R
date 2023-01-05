@@ -29,7 +29,7 @@
 }
 
 # Clean data and formula environment
-.refit_model <- function(x, formula, na.rm = FALSE) {
+.refit_model <- function (x, formula, na.rm = FALSE) {
 
   # Get model call
   call <- x$call

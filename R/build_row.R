@@ -135,7 +135,7 @@ build_row.data.frame <- function (
 #'  label = 'MPG'
 #' )
 #' @export
-build_row.numeric <- function(
+build_row.numeric <- function (
   x,
   y = NA,
   label = '(Unlabeled column)',
