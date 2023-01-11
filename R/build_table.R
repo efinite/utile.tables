@@ -26,17 +26,19 @@ build_table.default <- function (.object, ...) {
 #' columns in the data.frame. May be specified using
 #' \code{\link[tidyselect:select_helpers]{tidyselect helpers}}. If left empty,
 #' all columns are summarized.
-#' @param .by An unquoted expression. Optional. The data column to stratify the
+#' @param .by An unquoted expression. The data column to stratify the
 #' summary by.
-#' @param .inverse A logical. Optional. For logical data, report the frequency
+#' @param .inverse A logical. For logical data, report the frequency
 #' of FALSE values instead of the TRUE.
-#' @param .append.stat A logical. Optionla. Append the type of summary statistic
+#' @param .label.stat A logical. Append the type of summary statistic
 #' to the column label.
-#' @param .show.missing A logical. Optional. Append a column listing the
 #' @param .stat A character. Name of the summary statistic to use for numeric data.
 #' Supported options include the mean ('mean') and median ('median').
+#' @param .stat.pct.sign A logical. Paste a percent symbol after all
+#' reported frequencies.
 #' @param .col.overall A logical. Append a column with the statistic for all data.
 #' If \code{.by} is not specified, this parameter is ignored.
+#' @param .col.missing A logical. Append a column listing the
 #' frequencies of missing data for each row.
 #' @param .test.continuous A character. A character. Name of statistical test to compare groups.
 #' Supported options include ANOVA linear model ('anova'), Kruskal-Wallis ('kruskal'),
@@ -48,10 +50,8 @@ build_table.default <- function (.object, ...) {
 #' the p-value when testing nominal data.
 #' @param .col.test A logical. Append a column containing the test
 #' each p-value was derived from.
-#' @param .percent.sign A logical. Optional. Paste a percent symbol after all
-#' reported frequencies.
-#' @param .digits An integer. Optional. The number of digits to round numbers to.
-#' @param .p.digits An integer. Optional. The number of p-value digits to report.
+#' @param .digits An integer. The number of digits to round numbers to.
+#' @param .p.digits An integer. The number of p-value digits to report.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' object.
 #' @seealso \code{\link{build_table}}
@@ -76,10 +76,11 @@ build_table.data.frame <- function (
   ...,
   .by,
   .inverse = FALSE,
-  .append.stat = TRUE,
-  .show.missing = FALSE,
-  .percent.sign = TRUE,
+  .label.stat = TRUE,
+  .stat = c('mean', 'median'),
+  .stat.pct.sign = FALSE,
   .col.overall = TRUE,
+  .col.missing = FALSE,
   .test.continuous = c('anova', 'kruskal', 'wilcoxon'),
   .test.nominal = c('chisq', 'fisher'),
   .test.simulate.p = FALSE,
@@ -126,12 +127,12 @@ build_table.data.frame <- function (
       x = x,
       y = if (length(by) == 1) .object[[by]],
       ...,
+      label.stat = .label.stat,
       inverse = .inverse,
-      append.stat = .append.stat,
-      show.missing = .show.missing,
-      percent.sign = .percent.sign,
       stat = .stat,
+      stat.pct.sign = .stat.pct.sign,
       col.overall = .col.overall,
+      col.missing = .col.missing,
       test.simulate.p = .test.simulate.p,
       col.test = .col.test,
       digits = .digits,

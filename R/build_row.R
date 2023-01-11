@@ -26,16 +26,17 @@ build_row.default <- function (x, label = NULL, ...) {
 #' using a factor or logical with the same size as the tibble.
 #' @param x An data.frame object. Data to summarize. Must be the same length as
 #' \code{y} (if specified).
-#' @param y A factor or logical. Optional. Data to stratify \code{x} by.
-#' @param label A character. Optional. The name of the summarized variable.
-#' @param show.missing A logical. Optional. Append an empty missing data column.
-#' @param percent.sign A logical. Optional. Paste a percentage symbol with each
+#' @param y A factor or logical. Data to stratify \code{x} by.
+#' @param label A character. The name of the summarized variable.
+#' @param stat.pct.sign A logical. Paste a percentage symbol with each frequency.
 #' frequency.
-#' @param digits An integer. Optional. Number of digits to round to.
-#' @param ... Miscellaneous options.
 #' @param col.overall A logical. Append a column with the statistic for all data.
 #' If \code{y} is not specified, this parameter is ignored.
+#' @param col.missing A logical. Append a column with counts of missing data.
 #' @param col.test A logical. Append a column with the name of the statistical
+#' test used.
+#' @param digits An integer. Number of digits to round to.
+#' @param ... Additional arguments passed to S3 method.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @examples
@@ -44,15 +45,25 @@ build_row.default <- function (x, label = NULL, ...) {
 #' @export
 build_row.data.frame <- function (
   x,
-  y = NA,
+  y = NA_real_,
   label = 'n(%)',
-  show.missing = FALSE,
-  percent.sign = FALSE,
+  stat.pct.sign = FALSE,
   col.overall = TRUE,
+  col.missing = FALSE,
   col.test = FALSE,
   digits = 1,
   ...
 ) {
+
+  # Statistic Function
+  paste_stat_ <- function (...) {
+    utile.tools::paste_freq(
+      ...,
+      na.rm = FALSE,
+      percent.sign = stat.pct.sign,
+      digits = digits
+    )
+  }
 
   # Retrieve by variable levels
   y_levels <- .get_levels(y)
@@ -78,11 +89,8 @@ build_row.data.frame <- function (
       purrr::map(
         y_levels,
         function (.y) {
-          utile.tools::paste_freq(
+          paste_stat_(
             x = nrow(x[y == .y & !is.na(y),]),
-            na.rm = FALSE,
-            percent.sign = percent.sign,
-            digits = digits
             y = x_cnt
           )
         }
@@ -91,15 +99,7 @@ build_row.data.frame <- function (
   }
 
   # Missing
-  if (show.missing) {
-    cols$Missing <- utile.tools::paste_freq(
-      x = y[is.na(y)],
-      y = y,
-      na.rm = FALSE,
-      percent.sign = percent.sign,
-      digits = digits
-    )
-  }
+  if (col.missing) cols$Missing <- paste_stat_(x = y[is.na(y)], y = y)
 
   # Hypothesis testing columns
   if (length(y_levels) > 1) cols[c('p', if (col.test) 'Test')] <- ''
@@ -115,26 +115,24 @@ build_row.data.frame <- function (
 #' null hypothesis testing using another factor or logical.
 #' @param x A numeric. Data to summarize. Must be the same length as \code{y}
 #' (if specified).
-#' @param y A factor or logical. Optional. Data to stratify \code{x} by.
-#' @param label A character. Optional. The name of the summarized variable.
-#' @param append.stat A logical. Optional. Append the summary statistic used to
+#' @param y A factor or logical. Data to stratify \code{x} by.
+#' @param label A character. The name of the summarized variable.
+#' @param label.stat A logical. Append the summary statistic used to
 #' the label of the summarized row.
-#' @param show.missing A logical. Optional. Append summary counts of missing
-#' data.
-#' @param percent.sign A logical. Optional. Paste a percentage symbol with each
-#' frequency.
-#' @param digits An integer. Optional. Number of digits to round to.
-#' @param p.digits An integer. Optional. Number of p-value digits to report.
-#' @param ... Miscellaneous options.
 #' @param stat A character. Name of the summary statistic to use. Supported options
 #' include the mean ('mean') and median ('median').
+#' @param stat.pct.sign A logical. Paste a percentage symbol with each frequency.
 #' @param col.overall A logical. Append a column with the statistic for all data.
 #' If \code{y} is not specified, this parameter is ignored.
+#' @param col.missing A logical. Append a column with counts of missing data.
 #' @param test A character. Name of statistical test to compare groups.
 #' Supported options include ANOVA linear model ('anova'), Kruskal-Wallis ('kruskal'),
 #' and Wilcoxon rank sum ('wilcoxon') tests.
 #' @param col.test A logical. Append a column with the name of the statistical
 #' test used.
+#' @param digits An integer. Number of digits to round to.
+#' @param p.digits An integer. Number of p-value digits to report.
+#' @param ... Additional arguments passed to S3 method.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @seealso \code{\link{build_row}}
@@ -148,13 +146,13 @@ build_row.data.frame <- function (
 #' @export
 build_row.numeric <- function (
   x,
-  y = NA,
-  label = '(Unlabeled column)',
-  append.stat = TRUE,
-  show.missing = FALSE,
-  percent.sign = FALSE,
+  y = NA_real_,
+  label = '< variable >',
+  label.stat = TRUE,
   stat = c('mean', 'median'),
+  stat.pct.sign = FALSE,
   col.overall = TRUE,
+  col.missing = FALSE,
   test = c('anova', 'kruskal', 'wilcoxon'),
   col.test = FALSE,
   digits = 1,
@@ -176,7 +174,7 @@ build_row.numeric <- function (
     utile.tools::paste_freq(
       ...,
       na.rm = FALSE,
-      percent.sign = percent.sign,
+      percent.sign = stat.pct.sign,
       digits = digits
     )
   }
@@ -190,14 +188,16 @@ build_row.numeric <- function (
   # Variable label +/- statistic name
   cols$Variable <- paste0(
     label,
+    if (label.stat) {
       if (stat == 'median') ', median[IQR]'
       else ', mean\u00B1SD'
+    }
   )
 
   # Summary statistic: Overall
   if (col.overall | length(y_levels) == 0) cols$Overall <- paste_stat_(x = x)
 
-  # Statistics for by levels
+  # Summary statistic: By strata
   if (length(y_levels) > 0) {
     cols <- c(
       cols,
@@ -209,7 +209,7 @@ build_row.numeric <- function (
   }
 
   # Missing
-  if (show.missing) {
+  if (col.missing) {
     cols$Missing <- paste_freq_(x = sum(is.na(x)), y = length(x))
   }
 
@@ -243,21 +243,16 @@ build_row.numeric <- function (
 #' null hypothesis testing using another factor or logical.
 #' @param x A logical. Data to summarize. Must be the same length as \code{y}
 #' (if specified).
-#' @param y A factor or logical. Optional. Data to stratify \code{x} by.
-#' @param label A character. Optional. The name of the summarized variable.
-#' @param inverse A logical. Optional. Report frequencies of the \code{FALSE}
-#' values instead.
-#' @param append.stat A logical. Optional. Append the summary statistic used to
+#' @param y A factor or logical. Data to stratify \code{x} by.
+#' @param label A character. The name of the summarized variable.
+#' @param label.stat A logical. Append the summary statistic used to
 #' the label of the summarized row.
-#' @param show.missing A logical. Optional. Append summary counts of missing
-#' data.
-#' @param percent.sign A logical. Optional. Paste a percentage symbol with each
-#' frequency.
-#' @param digits An integer. Optional. Number of digits to round to.
-#' @param p.digits An integer. Optional. Number of p-value digits to report.
-#' @param ... Miscellaneous options.
+#' @param inverse A logical. Report frequencies of the \code{FALSE}
+#' values instead.
+#' @param stat.pct.sign A logical. Paste a percentage symbol with each frequency.
 #' @param col.overall A logical. Append a column with the statistic for all data.
 #' If \code{y} is not specified, this parameter is ignored.
+#' @param col.missing A logical. Append a column with counts of missing data.
 #' @param test A character. Name of statistical test to compare groups.
 #' Supported options include Pearson's Chi-squared Test ('chisq') and Fisher's
 #' Exact Test ('fisher').
@@ -265,6 +260,9 @@ build_row.numeric <- function (
 #' the p-value when testing nominal data.
 #' @param col.test A logical. Append a column with the name of the statistical
 #' test used.
+#' @param digits An integer. Number of digits to round to.
+#' @param p.digits An integer. Number of p-value digits to report.
+#' @param ... Additional arguments passed to S3 method.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @seealso \code{\link{build_row}}
@@ -278,13 +276,13 @@ build_row.numeric <- function (
 #' @export
 build_row.logical <- function (
   x,
-  y = NA,
-  label = '(Unlabeled column)',
+  y = NA_real_,
+  label = '< variable >',
+  label.stat = TRUE,
   inverse = FALSE,
-  append.stat = TRUE,
-  show.missing = FALSE,
-  percent.sign = FALSE,
+  stat.pct.sign = FALSE,
   col.overall = TRUE,
+  col.missing = FALSE,
   test = c('chisq', 'fisher'),
   test.simulate.p = FALSE,
   col.test = FALSE,
@@ -301,7 +299,7 @@ build_row.logical <- function (
     utile.tools::paste_freq(
       ...,
       na.rm = FALSE,
-      percent.sign = percent.sign,
+      percent.sign = stat.pct.sign,
       digits = digits
     )
   }
@@ -318,8 +316,8 @@ build_row.logical <- function (
   # Variable label +/- statistic name
   cols$Variable <- paste0(
     label,
-    if (!inverse) { ', yes' } else { ', no' },
-    if (append.stat) { ', n(%)' }
+    if (inverse) ', no',
+    if (label.stat) { ', n(%)' }
   )
 
   # Overall statistic
@@ -344,9 +342,7 @@ build_row.logical <- function (
   }
 
   # Missing
-  if (show.missing) {
-    cols$Missing <- paste_stat_(x = x[is.na(x)], y = x)
-  }
+  if (col.missing) cols$Missing <- paste_stat_(x = x[is.na(x)], y = x)
 
   # Hypothesis testing
   if (length(y_levels) > 1) {
@@ -378,19 +374,14 @@ build_row.logical <- function (
 #' null hypothesis testing using another factor or logical.
 #' @param x A factor. Data to summarize. Must be the same length as \code{y}
 #' (if specified).
-#' @param y A factor or logical. Optional. Data to stratify \code{x} by.
-#' @param label A character. Optional. The name of the summarized variable.
-#' @param append.stat A logical. Optional. Append the summary statistic used to
+#' @param y A factor or logical. Data to stratify \code{x} by.
+#' @param label A character. The name of the summarized variable.
+#' @param label.stat A logical. Append the summary statistic used to
 #' the label of the summarized row.
-#' @param show.missing A logical. Optional. Append summary counts of missing
-#' data.
-#' @param percent.sign A logical. Optional. Paste a percentage symbol with each
-#' frequency.
-#' @param digits An integer. Optional. Number of digits to round to.
-#' @param p.digits An integer. Optional. Number of p-value digits to report.
-#' @param ... Miscellaneous options.
+#' @param stat.pct.sign A logical. Paste a percentage symbol with each frequency.
 #' @param col.overall A logical. Append a column with the statistic for all data.
 #' If \code{y} is not specified, this parameter is ignored.
+#' @param col.missing A logical. Append a column with counts of missing data.
 #' @param test A character. Name of statistical test to compare groups.
 #' Supported options include Pearson's Chi-squared Test ('chisq') and Fisher's
 #' Exact Test ('fisher').
@@ -398,6 +389,9 @@ build_row.logical <- function (
 #' the p-value when testing nominal data.
 #' @param col.test A logical. Append a column with the name of the statistical
 #' test used.
+#' @param digits An integer. Number of digits to round to.
+#' @param p.digits An integer. Number of p-value digits to report.
+#' @param ... Additional arguments passed to S3 method.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @seealso \code{\link{build_row}}
@@ -411,12 +405,12 @@ build_row.logical <- function (
 #' @export
 build_row.factor <- function (
   x,
-  y = NA,
-  label = '(Unlabeled column)',
-  append.stat = TRUE,
-  show.missing = FALSE,
-  percent.sign = FALSE,
+  y = NA_real_,
+  label = '< variable >',
+  label.stat = TRUE,
+  stat.pct.sign = FALSE,
   col.overall = TRUE,
+  col.missing = FALSE,
   test = c('chisq', 'fisher'),
   test.simulate.p = FALSE,
   col.test = FALSE,
@@ -433,7 +427,7 @@ build_row.factor <- function (
     utile.tools::paste_freq(
       ...,
       na.rm = FALSE,
-      percent.sign = percent.sign,
+      percent.sign = stat.pct.sign,
       digits = digits
     )
   }
@@ -451,7 +445,7 @@ build_row.factor <- function (
 
   # Variable labels
   cols$Variable <- c(
-    paste0(label, if (append.stat) { ', n(%)' }),
+    paste0(label, if (label.stat) { ', n(%)' }),
     paste0('  ', names(x_levels))
   )
 
@@ -489,7 +483,7 @@ build_row.factor <- function (
   }
 
   # Show missing count
-  if (show.missing) {
+  if (col.missing) {
     cols$Missing <- c(paste_stat_(x = x[is.na(x)], y = x), level_fill)
   }
 
