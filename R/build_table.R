@@ -241,7 +241,7 @@ build_table.coxph <- function (
 
 
   # Generate table
-  table <- purrr::imap_dfr(
+  table <- purrr::imap(
     assignments,
     function (w, x) {
 
@@ -337,6 +337,9 @@ build_table.coxph <- function (
 
     }
   )
+
+  # Concatonate rows
+  table <- purrr::list_rbind(table)
 
   # Replace NA's
   .replace_na(table)
@@ -456,7 +459,7 @@ build_table.lm <- function (
   tests[] <- lapply(tests, as.character)
 
   # Generate table
-  table <- purrr::imap_dfr(
+  table <- purrr::imap(
     assignments,
 
     # Map assignments
@@ -539,6 +542,9 @@ build_table.lm <- function (
 
     }
   )
+
+  # Concatenate rows
+  table <- purrr::list_rbind(table)
 
   # Replace NA's & return
   .replace_na(table)

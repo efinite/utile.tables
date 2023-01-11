@@ -116,17 +116,19 @@ build_model.coxph <- function(
   if (!.mv) {
 
     # Univariable modelling
-    purrr::imap_dfr(
-      terms,
-        ~ {
-        build_table_(
-          .object = .refit_model(
-            x = .object,
-            formula = paste(base_formula, .y, sep = ' + ')
-          ),
-          !! .y
-        )
-      }
+    purrr::list_rbind(
+      purrr::imap(
+        terms,
+          ~ {
+          build_table_(
+            .object = .refit_model(
+              x = .object,
+              formula = paste(base_formula, .y, sep = ' + ')
+            ),
+            !! .y
+          )
+        }
+      )
     )
 
   } else {

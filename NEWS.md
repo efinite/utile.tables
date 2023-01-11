@@ -1,3 +1,11 @@
+# Development (0.3.0)
+* BREAKING: Revision of how `build_row` methods handle and display NA data. Missing data are
+now made explicit for factor data to ensure counts sum appropriately. The `na.rm=`
+parameter has also been removed to reduce ambiguity.
+* Fixed several counting errors in `build_row` which would occur in certain circumstances
+when NA values were present in input data.
+* Preemptive removal of the recently superseded `purrr::imap_dfr`. Lists are now
+concatenated with `purrr::list_rbind`.
 # 0.2.2
 * Fixed CRAN LazyData error
 
