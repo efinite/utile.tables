@@ -32,12 +32,21 @@ build_table.default <- function (.object, ...) {
 #' of FALSE values instead of the TRUE.
 #' @param .append.stat A logical. Optionla. Append the type of summary statistic
 #' to the column label.
-#' @param .parametric A logical. Optional. Use parametric testing.
 #' @param .show.missing A logical. Optional. Append a column listing the
+#' @param .stat A character. Name of the summary statistic to use for numeric data.
+#' Supported options include the mean ('mean') and median ('median').
 #' @param .col.overall A logical. Append a column with the statistic for all data.
 #' If \code{.by} is not specified, this parameter is ignored.
 #' frequencies of missing data for each row.
-#' @param .show.test A logical. Optional. Append a column containing the test
+#' @param .test.continuous A character. A character. Name of statistical test to compare groups.
+#' Supported options include ANOVA linear model ('anova'), Kruskal-Wallis ('kruskal'),
+#' and Wilcoxon rank sum ('wilcoxon') tests.
+#' @param .test.nominal A character. Name of statistical test to compare groups.
+#' Supported options include Pearson's Chi-squared Test ('chisq') and Fisher's
+#' Exact Test ('fisher').
+#' @param .test.simulate.p A logical. Whether to use Monte Carlo simulation of
+#' the p-value when testing nominal data.
+#' @param .col.test A logical. Append a column containing the test
 #' each p-value was derived from.
 #' @param .percent.sign A logical. Optional. Paste a percent symbol after all
 #' reported frequencies.
@@ -49,7 +58,7 @@ build_table.default <- function (.object, ...) {
 #' @examples
 #' # Sample data
 #' df <- data.frame(
-#'   strata = factor(sample(letters[1:3], 1000, replace = TRUE)),
+#'   strata = factor(sample(letters[2:3], 1000, replace = TRUE)),
 #'   numeric = sample(1:100, 1000, replace = TRUE),
 #'   numeric2 = sample(1:100, 1000, replace = TRUE),
 #'   factor = factor(sample(1:5, 1000, replace = TRUE)),
@@ -68,14 +77,21 @@ build_table.data.frame <- function (
   .by,
   .inverse = FALSE,
   .append.stat = TRUE,
-  .parametric = FALSE,
   .show.missing = FALSE,
-  .show.test = FALSE,
   .percent.sign = TRUE,
   .col.overall = TRUE,
+  .test.continuous = c('anova', 'kruskal', 'wilcoxon'),
+  .test.nominal = c('chisq', 'fisher'),
+  .test.simulate.p = FALSE,
+  .col.test = FALSE,
   .digits = 1,
   .p.digits = 4
 ) {
+
+  # Match arguments
+  .stat <- match.arg(.stat)
+  .test.continuous <- match.arg(.test.continuous)
+  .test.nominal <- match.arg(.test.nominal)
 
   # Column selection
   cols <- if (rlang::dots_n(...) > 0) {
@@ -112,11 +128,12 @@ build_table.data.frame <- function (
       ...,
       inverse = .inverse,
       append.stat = .append.stat,
-      parametric = .parametric,
       show.missing = .show.missing,
-      show.test = .show.test,
       percent.sign = .percent.sign,
+      stat = .stat,
       col.overall = .col.overall,
+      test.simulate.p = .test.simulate.p,
+      col.test = .col.test,
       digits = .digits,
       p.digits = .p.digits
     )
@@ -125,7 +142,18 @@ build_table.data.frame <- function (
   # Create table
   table <- dplyr::bind_rows(
     build_row_(x = .object),
-    purrr::imap_dfr(cols, ~ build_row_(x = .object[[.x]], label = .y))
+    purrr::list_rbind(
+      purrr::imap(
+        cols, ~ {
+          build_row_(
+            x = .object[[.x]],
+            label = .y,
+            test = if (inherits(.object[[.x]], c('factor', 'logical'))) .test.nominal
+              else .test.continuous
+          )
+        }
+      )
+    )
   )
 
   # Replace NA's & return table

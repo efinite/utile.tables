@@ -29,13 +29,13 @@ build_row.default <- function (x, label = NULL, ...) {
 #' @param y A factor or logical. Optional. Data to stratify \code{x} by.
 #' @param label A character. Optional. The name of the summarized variable.
 #' @param show.missing A logical. Optional. Append an empty missing data column.
-#' @param show.test A logical. Optional. Append empty test and statistic columns.
 #' @param percent.sign A logical. Optional. Paste a percentage symbol with each
 #' frequency.
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param ... Miscellaneous options.
 #' @param col.overall A logical. Append a column with the statistic for all data.
 #' If \code{y} is not specified, this parameter is ignored.
+#' @param col.test A logical. Append a column with the name of the statistical
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @examples
@@ -47,9 +47,9 @@ build_row.data.frame <- function (
   y = NA,
   label = 'n(%)',
   show.missing = FALSE,
-  show.test = FALSE,
   percent.sign = FALSE,
   col.overall = TRUE,
+  col.test = FALSE,
   digits = 1,
   ...
 ) {
@@ -102,10 +102,7 @@ build_row.data.frame <- function (
   }
 
   # Hypothesis testing columns
-  if (length(y_levels) > 1) {
-    cols$p <- ''
-    if (show.test) cols$Test <- ''
-  }
+  if (length(y_levels) > 1) cols[c('p', if (col.test) 'Test')] <- ''
 
   # Return converted tibble
   dplyr::as_tibble(cols)
@@ -120,20 +117,24 @@ build_row.data.frame <- function (
 #' (if specified).
 #' @param y A factor or logical. Optional. Data to stratify \code{x} by.
 #' @param label A character. Optional. The name of the summarized variable.
-#' @param parametric A logical. Optional. Use parametric tests.
 #' @param append.stat A logical. Optional. Append the summary statistic used to
 #' the label of the summarized row.
 #' @param show.missing A logical. Optional. Append summary counts of missing
 #' data.
-#' @param show.test A logical. Optional. Show the statistical test and test
-#' statistic used to determine the p-value.
 #' @param percent.sign A logical. Optional. Paste a percentage symbol with each
 #' frequency.
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param p.digits An integer. Optional. Number of p-value digits to report.
 #' @param ... Miscellaneous options.
+#' @param stat A character. Name of the summary statistic to use. Supported options
+#' include the mean ('mean') and median ('median').
 #' @param col.overall A logical. Append a column with the statistic for all data.
 #' If \code{y} is not specified, this parameter is ignored.
+#' @param test A character. Name of statistical test to compare groups.
+#' Supported options include ANOVA linear model ('anova'), Kruskal-Wallis ('kruskal'),
+#' and Wilcoxon rank sum ('wilcoxon') tests.
+#' @param col.test A logical. Append a column with the name of the statistical
+#' test used.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @seealso \code{\link{build_row}}
@@ -149,20 +150,25 @@ build_row.numeric <- function (
   x,
   y = NA,
   label = '(Unlabeled column)',
-  parametric = FALSE,
   append.stat = TRUE,
   show.missing = FALSE,
-  show.test = FALSE,
   percent.sign = FALSE,
+  stat = c('mean', 'median'),
   col.overall = TRUE,
+  test = c('anova', 'kruskal', 'wilcoxon'),
+  col.test = FALSE,
   digits = 1,
   p.digits = 4,
   ...
 ) {
 
+  # Check arguments
+  stat <- match.arg(stat)
+  test <- match.arg(test)
+
   # Statistic functions
   paste_stat_ <- function (...) {
-    if (!parametric) utile.tools::paste_median(..., digits = digits)
+    if (stat == 'median') utile.tools::paste_median(..., digits = digits)
     else utile.tools::paste_mean(..., digits = digits)
   }
 
@@ -184,8 +190,8 @@ build_row.numeric <- function (
   # Variable label +/- statistic name
   cols$Variable <- paste0(
     label,
-    if (append.stat & !parametric) ', median[IQR]'
-    else if (append.stat & parametric) ', mean\u00B1SD'
+      if (stat == 'median') ', median[IQR]'
+      else ', mean\u00B1SD'
   )
 
   # Summary statistic: Overall
@@ -210,16 +216,18 @@ build_row.numeric <- function (
   # Hypothesis testing
   if (length(y_levels) > 1) {
 
-    # P-values
-    cols$p <- suppressWarnings(
-      utile.tools::test_hypothesis(
-        x = x, y = y, parametric = parametric, digits = digits,
-        p.digits = p.digits
-      )
+    # Statistical test
+    test <- utile.tools::test_hypothesis(
+      x = x,
+      y = y,
+      test = test,
+      digits = digits,
+      p.digits = p.digits
     )
 
-    # Test used
-    if (show.test) cols$Test <- if (!parametric) 'Wilcox' else 'Student\'s'
+    # Addend test data
+    cols$p <- test$p
+    if (col.test) cols$Test <- test$test
 
   }
 
@@ -239,13 +247,10 @@ build_row.numeric <- function (
 #' @param label A character. Optional. The name of the summarized variable.
 #' @param inverse A logical. Optional. Report frequencies of the \code{FALSE}
 #' values instead.
-#' @param parametric A logical. Optional. Use parametric tests.
 #' @param append.stat A logical. Optional. Append the summary statistic used to
 #' the label of the summarized row.
 #' @param show.missing A logical. Optional. Append summary counts of missing
 #' data.
-#' @param show.test A logical. Optional. Show the statistical test and test
-#' statistic used to determine the p-value.
 #' @param percent.sign A logical. Optional. Paste a percentage symbol with each
 #' frequency.
 #' @param digits An integer. Optional. Number of digits to round to.
@@ -253,6 +258,13 @@ build_row.numeric <- function (
 #' @param ... Miscellaneous options.
 #' @param col.overall A logical. Append a column with the statistic for all data.
 #' If \code{y} is not specified, this parameter is ignored.
+#' @param test A character. Name of statistical test to compare groups.
+#' Supported options include Pearson's Chi-squared Test ('chisq') and Fisher's
+#' Exact Test ('fisher').
+#' @param test.simulate.p A logical. Whether to use Monte Carlo simulation of
+#' the p-value when testing nominal data.
+#' @param col.test A logical. Append a column with the name of the statistical
+#' test used.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @seealso \code{\link{build_row}}
@@ -269,16 +281,20 @@ build_row.logical <- function (
   y = NA,
   label = '(Unlabeled column)',
   inverse = FALSE,
-  parametric = FALSE,
   append.stat = TRUE,
   show.missing = FALSE,
-  show.test = FALSE,
   percent.sign = FALSE,
   col.overall = TRUE,
+  test = c('chisq', 'fisher'),
+  test.simulate.p = FALSE,
+  col.test = FALSE,
   digits = 1,
   p.digits = 4,
   ...
 ) {
+
+  # Check arguments
+  test <- match.arg(test)
 
   # Statistic factory
   paste_stat_ <- function (...) {
@@ -335,16 +351,19 @@ build_row.logical <- function (
   # Hypothesis testing
   if (length(y_levels) > 1) {
 
-    # p-value
-    cols$p <- suppressWarnings(
-      utile.tools::test_hypothesis(
-        x = x, y = y, parametric = parametric, digits = digits,
-        p.digits = p.digits
-      )
+    # Statistical test
+    test <- utile.tools::test_hypothesis(
+      x = x,
+      y = y,
+      test = test,
+      simulate.p = test.simulate.p,
+      digits = digits,
+      p.digits = p.digits
     )
 
-    # statistical tests
-    if (show.test) cols$Test <- if (!parametric) 'Chisq' else 'Fisher\'s'
+    # Addend test data
+    cols$p <- test$p
+    if (col.test) cols$Test <- test$test
 
   }
 
@@ -361,13 +380,10 @@ build_row.logical <- function (
 #' (if specified).
 #' @param y A factor or logical. Optional. Data to stratify \code{x} by.
 #' @param label A character. Optional. The name of the summarized variable.
-#' @param parametric A logical. Optional. Use parametric tests.
 #' @param append.stat A logical. Optional. Append the summary statistic used to
 #' the label of the summarized row.
 #' @param show.missing A logical. Optional. Append summary counts of missing
 #' data.
-#' @param show.test A logical. Optional. Show the statistical test and test
-#' statistic used to determine the p-value.
 #' @param percent.sign A logical. Optional. Paste a percentage symbol with each
 #' frequency.
 #' @param digits An integer. Optional. Number of digits to round to.
@@ -375,6 +391,13 @@ build_row.logical <- function (
 #' @param ... Miscellaneous options.
 #' @param col.overall A logical. Append a column with the statistic for all data.
 #' If \code{y} is not specified, this parameter is ignored.
+#' @param test A character. Name of statistical test to compare groups.
+#' Supported options include Pearson's Chi-squared Test ('chisq') and Fisher's
+#' Exact Test ('fisher').
+#' @param test.simulate.p A logical. Whether to use Monte Carlo simulation of
+#' the p-value when testing nominal data.
+#' @param col.test A logical. Append a column with the name of the statistical
+#' test used.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @seealso \code{\link{build_row}}
@@ -390,16 +413,20 @@ build_row.factor <- function (
   x,
   y = NA,
   label = '(Unlabeled column)',
-  parametric = FALSE,
   append.stat = TRUE,
   show.missing = FALSE,
-  show.test = FALSE,
   percent.sign = FALSE,
   col.overall = TRUE,
+  test = c('chisq', 'fisher'),
+  test.simulate.p = FALSE,
+  col.test = FALSE,
   digits = 1,
   p.digits = 4,
   ...
 ) {
+
+  # Check arguments
+  test <- match.arg(test)
 
   # Statistic function
   paste_stat_ <- function (...) {
@@ -469,17 +496,19 @@ build_row.factor <- function (
   # Testing with by variable
   if (length(y_levels) > 1) {
 
-    cols$p <- c(
-      suppressWarnings(
-        utile.tools::test_hypothesis(
-          x = x, y = y, parametric = parametric, digits = digits,
-          p.digits = p.digits
-        )
-      ),
-      level_fill
+    # Statistical test
+    test <- utile.tools::test_hypothesis(
+      x = x,
+      y = y,
+      test = test,
+      simulate.p = test.simulate.p,
+      digits = digits,
+      p.digits = p.digits
     )
 
-    if (show.test) cols$Test <- c(if (!parametric) 'Chisq' else 'Fisher\'s Exact', level_fill)
+    # Addend test data
+    cols$p <- c(test$p, level_fill)
+    if (col.test) cols$Test <- c(test$test, level_fill)
 
   }
 
