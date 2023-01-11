@@ -10,10 +10,10 @@ Encoding: UTF-8
 Depends: R (>= 3.4.0)
 Imports: 
   dplyr,
-  purrr,
+  purrr (>= 1.0.0),
   rlang,
   tidyselect,
-  utile.tools (>= 0.2.5)
+  utile.tools (>= 0.3.0)
 Suggests:
   survival
 RoxygenNote: 7.2.2
