@@ -34,6 +34,8 @@ build_table.default <- function (.object, ...) {
 #' to the column label.
 #' @param .parametric A logical. Optional. Use parametric testing.
 #' @param .show.missing A logical. Optional. Append a column listing the
+#' @param .col.overall A logical. Append a column with the statistic for all data.
+#' If \code{.by} is not specified, this parameter is ignored.
 #' frequencies of missing data for each row.
 #' @param .show.test A logical. Optional. Append a column containing the test
 #' each p-value was derived from.
@@ -70,6 +72,7 @@ build_table.data.frame <- function (
   .show.missing = FALSE,
   .show.test = FALSE,
   .percent.sign = TRUE,
+  .col.overall = TRUE,
   .digits = 1,
   .p.digits = 4
 ) {
@@ -113,6 +116,7 @@ build_table.data.frame <- function (
       show.missing = .show.missing,
       show.test = .show.test,
       percent.sign = .percent.sign,
+      col.overall = .col.overall,
       digits = .digits,
       p.digits = .p.digits
     )

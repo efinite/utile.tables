@@ -34,6 +34,8 @@ build_row.default <- function (x, label = NULL, ...) {
 #' frequency.
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param ... Miscellaneous options.
+#' @param col.overall A logical. Append a column with the statistic for all data.
+#' If \code{y} is not specified, this parameter is ignored.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @examples
@@ -47,12 +49,16 @@ build_row.data.frame <- function (
   show.missing = FALSE,
   show.test = FALSE,
   percent.sign = FALSE,
+  col.overall = TRUE,
   digits = 1,
   ...
 ) {
 
   # Retrieve by variable levels
   y_levels <- .get_levels(y)
+
+  # Count rows
+  x_cnt <- nrow(x)
 
   # Build row
   cols <- list()
@@ -61,7 +67,9 @@ build_row.data.frame <- function (
   cols$Variable <- label
 
   # Overall count
-  cols$Overall <- as.character((overall_cnt <- nrow(x)))
+  if (col.overall || length(y_levels) == 0) {
+    cols$Overall <- as.character(x_cnt)
+  }
 
   # Frequencies by level
   if (length(y_levels) > 0) {
@@ -72,10 +80,10 @@ build_row.data.frame <- function (
         function (.y) {
           utile.tools::paste_freq(
             x = nrow(x[y == .y & !is.na(y),]),
-            y = overall_cnt,
             na.rm = FALSE,
             percent.sign = percent.sign,
             digits = digits
+            y = x_cnt
           )
         }
       )
@@ -124,6 +132,8 @@ build_row.data.frame <- function (
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param p.digits An integer. Optional. Number of p-value digits to report.
 #' @param ... Miscellaneous options.
+#' @param col.overall A logical. Append a column with the statistic for all data.
+#' If \code{y} is not specified, this parameter is ignored.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @seealso \code{\link{build_row}}
@@ -144,6 +154,7 @@ build_row.numeric <- function (
   show.missing = FALSE,
   show.test = FALSE,
   percent.sign = FALSE,
+  col.overall = TRUE,
   digits = 1,
   p.digits = 4,
   ...
@@ -177,8 +188,8 @@ build_row.numeric <- function (
     else if (append.stat & parametric) ', mean\u00B1SD'
   )
 
-  # Overall summary statistic
-  cols$Overall = paste_stat_(x = x)
+  # Summary statistic: Overall
+  if (col.overall | length(y_levels) == 0) cols$Overall <- paste_stat_(x = x)
 
   # Statistics for by levels
   if (length(y_levels) > 0) {
@@ -240,6 +251,8 @@ build_row.numeric <- function (
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param p.digits An integer. Optional. Number of p-value digits to report.
 #' @param ... Miscellaneous options.
+#' @param col.overall A logical. Append a column with the statistic for all data.
+#' If \code{y} is not specified, this parameter is ignored.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @seealso \code{\link{build_row}}
@@ -261,6 +274,7 @@ build_row.logical <- function (
   show.missing = FALSE,
   show.test = FALSE,
   percent.sign = FALSE,
+  col.overall = TRUE,
   digits = 1,
   p.digits = 4,
   ...
@@ -293,7 +307,9 @@ build_row.logical <- function (
   )
 
   # Overall statistic
-  cols$Overall <- paste_stat_(x = x[x & !is.na(x)], y = x)
+  if (col.overall || length(y_levels) == 0) {
+    cols$Overall <- paste_stat_(x = x[x & !is.na(x)], y = x)
+  }
 
   # Strata statistics
   if (length(y_levels) > 0) {
@@ -357,6 +373,8 @@ build_row.logical <- function (
 #' @param digits An integer. Optional. Number of digits to round to.
 #' @param p.digits An integer. Optional. Number of p-value digits to report.
 #' @param ... Miscellaneous options.
+#' @param col.overall A logical. Append a column with the statistic for all data.
+#' If \code{y} is not specified, this parameter is ignored.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @seealso \code{\link{build_row}}
@@ -377,6 +395,7 @@ build_row.factor <- function (
   show.missing = FALSE,
   show.test = FALSE,
   percent.sign = FALSE,
+  col.overall = TRUE,
   digits = 1,
   p.digits = 4,
   ...
@@ -410,12 +429,14 @@ build_row.factor <- function (
   )
 
   # Overall summary statistic
-  cols$Overall <- c(
-    '',
-    purrr::map_chr(x_levels, function (.x) {
-      paste_stat_(x = x[x %in% .x], y = x)
-    })
-  )
+  if (col.overall || length(y_levels) == 0) {
+    cols$Overall <- c(
+      '',
+      purrr::map_chr(x_levels, function (.x) {
+        paste_stat_(x = x[x %in% .x], y = x)
+      })
+    )
+  }
 
   if (length(y_levels) > 0) {
     cols <- c(
