@@ -7,7 +7,7 @@
 build_row(x, ...)
 }
 \arguments{
-\item{x}{An object of a supported class. See S3 methods below.}
+\item{x}{An object of a supported class. See available S3 methods below.}
 
 \item{...}{Arguments passed to the appropriate S3 method.}
 }
@@ -16,8 +16,17 @@ An object of class \code{tbl_df} (tibble) summarizing the provided
 data.
 }
 \description{
-Summarize a data into a data.frame row(s). Optional
-stratification and null hypothesis testing using a factor or logical.
+Summarize data into a data.frame with row(s). Includes optional
+stratification and null hypothesis testing using a factor or logical
+variable.
+}
+\examples{
+strata <- as.factor(datasets::mtcars$cyl)
+
+build_row(x = datasets::mtcars, y = strata) # data.frame
+build_row(x = as.numeric(datasets::mtcars$mpg), y = strata) # numeric
+build_row(x = as.logical(datasets::mtcars$vs), y = strata) # logical
+build_row(x = as.factor(datasets::mtcars$carb), y = strata) # factor
 }
 \seealso{
 \code{\link{build_row.data.frame}},

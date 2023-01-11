@@ -52,13 +52,13 @@ export, human-readable summary table.
 library(survival)
 library(dplyr)
 
-data_lung <- lung \%>\%
-  mutate_at(vars(inst, status, sex), as.factor) \%>\%
+data_lung <- lung |>
+  mutate_at(vars(inst, status, sex), as.factor) |>
   mutate(status = case_when(status == 1 ~ 0, status == 2 ~ 1))
 
 fit <- coxph(Surv(time, status) ~ sex + meal.cal, data = data_lung)
 
-fit \%>\% build_table(Sex = sex, Calories = meal.cal, .test = 'LRT')
+fit |> build_table(Sex = sex, Calories = meal.cal, .test = 'LRT')
 }
 \seealso{
 \code{\link{build_table}}

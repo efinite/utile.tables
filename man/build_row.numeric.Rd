@@ -6,13 +6,15 @@
 \usage{
 \method{build_row}{numeric}(
   x,
-  y = NA,
-  label = "(Unlabeled column)",
-  parametric = FALSE,
-  append.stat = TRUE,
-  show.missing = FALSE,
-  show.test = FALSE,
-  percent.sign = TRUE,
+  y = NA_real_,
+  label = "< variable >",
+  label.stat = TRUE,
+  stat = c("mean", "median"),
+  stat.pct.sign = FALSE,
+  col.overall = TRUE,
+  col.missing = FALSE,
+  test = c("anova", "kruskal", "wilcoxon"),
+  col.test = FALSE,
   digits = 1,
   p.digits = 4,
   ...
@@ -22,29 +24,35 @@
 \item{x}{A numeric. Data to summarize. Must be the same length as \code{y}
 (if specified).}
 
-\item{y}{A factor or logical. Optional. Data to stratify \code{x} by.}
+\item{y}{A factor or logical. Data to stratify \code{x} by.}
 
-\item{label}{A character. Optional. The name of the summarized variable.}
+\item{label}{A character. The name of the summarized variable.}
 
-\item{parametric}{A logical. Optional. Use parametric tests.}
-
-\item{append.stat}{A logical. Optional. Append the summary statistic used to
+\item{label.stat}{A logical. Append the summary statistic used to
 the label of the summarized row.}
 
-\item{show.missing}{A logical. Optional. Append summary counts of missing
-data.}
+\item{stat}{A character. Name of the summary statistic to use. Supported options
+include the mean ('mean') and median ('median').}
 
-\item{show.test}{A logical. Optional. Show the statistical test and test
-statistic used to determine the p-value.}
+\item{stat.pct.sign}{A logical. Paste a percentage symbol with each frequency.}
 
-\item{percent.sign}{A logical. Optional. Paste a percentage symbol with each
-frequency.}
+\item{col.overall}{A logical. Append a column with the statistic for all data.
+If \code{y} is not specified, this parameter is ignored.}
 
-\item{digits}{An integer. Optional. Number of digits to round to.}
+\item{col.missing}{A logical. Append a column with counts of missing data.}
 
-\item{p.digits}{An integer. Optional. Number of p-value digits to report.}
+\item{test}{A character. Name of statistical test to compare groups.
+Supported options include ANOVA linear model ('anova'), Kruskal-Wallis ('kruskal'),
+and Wilcoxon rank sum ('wilcoxon') tests.}
 
-\item{...}{Miscellaneous options.}
+\item{col.test}{A logical. Append a column with the name of the statistical
+test used.}
+
+\item{digits}{An integer. Number of digits to round to.}
+
+\item{p.digits}{An integer. Number of p-value digits to report.}
+
+\item{...}{Additional arguments passed to S3 method.}
 }
 \value{
 An object of class \code{tbl_df} (tibble) summarizing the provided

@@ -51,13 +51,13 @@ ready to export, human-readable summary table.
 \examples{
 library(dplyr)
 
-data_mtcars <- datasets::mtcars \%>\%
-  mutate_at(vars('vs', 'am'), as.logical) \%>\%
+data_mtcars <- datasets::mtcars |>
+  mutate_at(vars('vs', 'am'), as.logical) |>
   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
 
 fit <- lm(mpg ~ vs + drat + cyl, data = data_mtcars)
 
-fit \%>\% build_table()
+fit |> build_table()
 }
 \seealso{
 \code{\link{build_table}}

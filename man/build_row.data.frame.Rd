@@ -6,11 +6,12 @@
 \usage{
 \method{build_row}{data.frame}(
   x,
-  y,
+  y = NA_real_,
   label = "n(\%)",
-  show.missing = FALSE,
-  show.test = FALSE,
-  percent.sign = TRUE,
+  stat.pct.sign = FALSE,
+  col.overall = TRUE,
+  col.missing = FALSE,
+  col.test = FALSE,
   digits = 1,
   ...
 )
@@ -19,20 +20,24 @@
 \item{x}{An data.frame object. Data to summarize. Must be the same length as
 \code{y} (if specified).}
 
-\item{y}{A factor or logical. Optional. Data to stratify \code{x} by.}
+\item{y}{A factor or logical. Data to stratify \code{x} by.}
 
-\item{label}{A character. Optional. The name of the summarized variable.}
+\item{label}{A character. The name of the summarized variable.}
 
-\item{show.missing}{A logical. Optional. Append an empty missing data column.}
-
-\item{show.test}{A logical. Optional. Append empty test and statistic columns.}
-
-\item{percent.sign}{A logical. Optional. Paste a percentage symbol with each
+\item{stat.pct.sign}{A logical. Paste a percentage symbol with each frequency.
 frequency.}
 
-\item{digits}{An integer. Optional. Number of digits to round to.}
+\item{col.overall}{A logical. Append a column with the statistic for all data.
+If \code{y} is not specified, this parameter is ignored.}
 
-\item{...}{Miscellaneous options.}
+\item{col.missing}{A logical. Append a column with counts of missing data.}
+
+\item{col.test}{A logical. Append a column with the name of the statistical
+test used.}
+
+\item{digits}{An integer. Number of digits to round to.}
+
+\item{...}{Additional arguments passed to S3 method.}
 }
 \value{
 An object of class \code{tbl_df} (tibble) summarizing the provided

@@ -57,14 +57,14 @@ fitting a large number of variables against a set of time-to-event data.
 library(survival)
 library(dplyr)
 
-data_lung <- lung \%>\%
-  mutate_at(vars(inst, status, sex), as.factor) \%>\%
+data_lung <- lung |>
+  mutate_at(vars(inst, status, sex), as.factor) |>
   mutate(status = case_when(status == 1 ~ 0, status == 2 ~ 1))
 
 fit <- coxph(Surv(time, status) ~ 1, data = data_lung)
 
 # Create a univariate model for each variable
-fit \%>\% build_model(sex, age)
+fit |> build_model(sex, age)
 }
 \seealso{
 \code{\link{build_model}}

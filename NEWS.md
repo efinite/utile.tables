@@ -4,8 +4,17 @@ now made explicit for factor data to ensure counts sum appropriately. The `na.rm
 parameter has also been removed to reduce ambiguity.
 * Fixed several counting errors in `build_row` which would occur in certain circumstances
 when NA values were present in input data.
+* With the introduction of the `col.overall=` argument, the "Overall" column produced 
+by build_row is now optional.
+* BREAKING: Many arguments for both `build_table` and `build_row` have been renamed
+to make their effects clearer.
+* BREAKING: The `parametric=` argument has been replaced by the `stat=` and
+`test=` arguments which allow manual specification.
+* Support for and requirement of `utile.tools::` version 0.3.0 which introduces
+breaking changes to the `test_hypothesis` function.
 * Preemptive removal of the recently superseded `purrr::imap_dfr`. Lists are now
 concatenated with `purrr::list_rbind`.
+
 # 0.2.2
 * Fixed CRAN LazyData error
 

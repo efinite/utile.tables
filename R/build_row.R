@@ -1,10 +1,18 @@
 #' @title Build summary rows
-#' @description Summarize data into a data.frame with row(s). Optional
-#' stratification and null hypothesis testing using a factor or logical.
-#' @param x An object of a supported class. See S3 methods below.
+#' @description Summarize data into a data.frame with row(s). Includes optional
+#' stratification and null hypothesis testing using a factor or logical
+#' variable.
+#' @param x An object of a supported class. See available S3 methods below.
 #' @param ... Arguments passed to the appropriate S3 method.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
+#' @examples
+#' strata <- as.factor(datasets::mtcars$cyl)
+#'
+#' build_row(x = datasets::mtcars, y = strata) # data.frame
+#' build_row(x = as.numeric(datasets::mtcars$mpg), y = strata) # numeric
+#' build_row(x = as.logical(datasets::mtcars$vs), y = strata) # logical
+#' build_row(x = as.factor(datasets::mtcars$carb), y = strata) # factor
 #' @seealso
 #' \code{\link{build_row.data.frame}},
 #' \code{\link{build_row.numeric}},

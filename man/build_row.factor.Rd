@@ -6,14 +6,15 @@
 \usage{
 \method{build_row}{factor}(
   x,
-  y = NA,
-  label = "(Unlabeled column)",
-  parametric = FALSE,
-  na.rm = FALSE,
-  append.stat = TRUE,
-  show.missing = FALSE,
-  show.test = FALSE,
-  percent.sign = TRUE,
+  y = NA_real_,
+  label = "< variable >",
+  label.stat = TRUE,
+  stat.pct.sign = FALSE,
+  col.overall = TRUE,
+  col.missing = FALSE,
+  test = c("chisq", "fisher"),
+  test.simulate.p = FALSE,
+  col.test = FALSE,
   digits = 1,
   p.digits = 4,
   ...
@@ -23,33 +24,35 @@
 \item{x}{A factor. Data to summarize. Must be the same length as \code{y}
 (if specified).}
 
-\item{y}{A factor or logical. Optional. Data to stratify \code{x} by.}
+\item{y}{A factor or logical. Data to stratify \code{x} by.}
 
-\item{label}{A character. Optional. The name of the summarized variable.}
+\item{label}{A character. The name of the summarized variable.}
 
-\item{parametric}{A logical. Optional. Use parametric tests.}
-
-\item{na.rm}{A logical. Optional. Whether to ignore NA values in frequency
-calculations. If left unspecified, NA values will be given an explicit level
-and summarized.}
-
-\item{append.stat}{A logical. Optional. Append the summary statistic used to
+\item{label.stat}{A logical. Append the summary statistic used to
 the label of the summarized row.}
 
-\item{show.missing}{A logical. Optional. Append summary counts of missing
-data.}
+\item{stat.pct.sign}{A logical. Paste a percentage symbol with each frequency.}
 
-\item{show.test}{A logical. Optional. Show the statistical test and test
-statistic used to determine the p-value.}
+\item{col.overall}{A logical. Append a column with the statistic for all data.
+If \code{y} is not specified, this parameter is ignored.}
 
-\item{percent.sign}{A logical. Optional. Paste a percentage symbol with each
-frequency.}
+\item{col.missing}{A logical. Append a column with counts of missing data.}
 
-\item{digits}{An integer. Optional. Number of digits to round to.}
+\item{test}{A character. Name of statistical test to compare groups.
+Supported options include Pearson's Chi-squared Test ('chisq') and Fisher's
+Exact Test ('fisher').}
 
-\item{p.digits}{An integer. Optional. Number of p-value digits to report.}
+\item{test.simulate.p}{A logical. Whether to use Monte Carlo simulation of
+the p-value when testing nominal data.}
 
-\item{...}{Miscellaneous options.}
+\item{col.test}{A logical. Append a column with the name of the statistical
+test used.}
+
+\item{digits}{An integer. Number of digits to round to.}
+
+\item{p.digits}{An integer. Number of p-value digits to report.}
+
+\item{...}{Additional arguments passed to S3 method.}
 }
 \value{
 An object of class \code{tbl_df} (tibble) summarizing the provided
@@ -62,8 +65,8 @@ null hypothesis testing using another factor or logical.
 \examples{
 # Create a row summarizing a factor by a factor
 build_row(
- x = as.factor(mtcars$carb),
- y = as.factor(mtcars$cyl),
+ x = as.factor(datasets::mtcars$carb),
+ y = as.factor(datasets::mtcars$cyl),
  label = 'Carb'
 )
 }

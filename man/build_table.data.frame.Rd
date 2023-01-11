@@ -9,12 +9,15 @@
   ...,
   .by,
   .inverse = FALSE,
-  .append.stat = TRUE,
-  .parametric = FALSE,
-  .show.missing = FALSE,
-  .show.test = FALSE,
-  .na.rm = TRUE,
-  .percent.sign = TRUE,
+  .label.stat = TRUE,
+  .stat = c("mean", "median"),
+  .stat.pct.sign = FALSE,
+  .col.overall = TRUE,
+  .col.missing = FALSE,
+  .test.continuous = c("anova", "kruskal", "wilcoxon"),
+  .test.nominal = c("chisq", "fisher"),
+  .test.simulate.p = FALSE,
+  .col.test = FALSE,
   .digits = 1,
   .p.digits = 4
 )
@@ -27,32 +30,44 @@ columns in the data.frame. May be specified using
 \code{\link[tidyselect:select_helpers]{tidyselect helpers}}. If left empty,
 all columns are summarized.}
 
-\item{.by}{An unquoted expression. Optional. The data column to stratify the
+\item{.by}{An unquoted expression. The data column to stratify the
 summary by.}
 
-\item{.inverse}{A logical. Optional. For logical data, report the frequency
+\item{.inverse}{A logical. For logical data, report the frequency
 of FALSE values instead of the TRUE.}
 
-\item{.append.stat}{A logical. Optionla. Append the type of summary statistic
+\item{.label.stat}{A logical. Append the type of summary statistic
 to the column label.}
 
-\item{.parametric}{A logical. Optional. Use parametric testing.}
+\item{.stat}{A character. Name of the summary statistic to use for numeric data.
+Supported options include the mean ('mean') and median ('median').}
 
-\item{.show.missing}{A logical. Optional. Append a column listing the
-frequencies of missing data for each row.}
-
-\item{.show.test}{A logical. Optional. Append a column containing the test
-each p-value was derived from.}
-
-\item{.na.rm}{A logical. Optional. Ignore NA values when calculating
-frequencies for logical and factor data types.}
-
-\item{.percent.sign}{A logical. Optional. Paste a percent symbol after all
+\item{.stat.pct.sign}{A logical. Paste a percent symbol after all
 reported frequencies.}
 
-\item{.digits}{An integer. Optional. The number of digits to round numbers to.}
+\item{.col.overall}{A logical. Append a column with the statistic for all data.
+If \code{.by} is not specified, this parameter is ignored.}
 
-\item{.p.digits}{An integer. Optional. The number of p-value digits to report.}
+\item{.col.missing}{A logical. Append a column listing the
+frequencies of missing data for each row.}
+
+\item{.test.continuous}{A character. A character. Name of statistical test to compare groups.
+Supported options include ANOVA linear model ('anova'), Kruskal-Wallis ('kruskal'),
+and Wilcoxon rank sum ('wilcoxon') tests.}
+
+\item{.test.nominal}{A character. Name of statistical test to compare groups.
+Supported options include Pearson's Chi-squared Test ('chisq') and Fisher's
+Exact Test ('fisher').}
+
+\item{.test.simulate.p}{A logical. Whether to use Monte Carlo simulation of
+the p-value when testing nominal data.}
+
+\item{.col.test}{A logical. Append a column containing the test
+each p-value was derived from.}
+
+\item{.digits}{An integer. The number of digits to round numbers to.}
+
+\item{.p.digits}{An integer. The number of p-value digits to report.}
 }
 \value{
 An object of class \code{tbl_df} (tibble) summarizing the provided
@@ -66,7 +81,7 @@ and performing appropriate hypothesis testing.
 \examples{
 # Sample data
 df <- data.frame(
-  strata = factor(sample(letters[1:3], 1000, replace = TRUE)),
+  strata = factor(sample(letters[2:3], 1000, replace = TRUE)),
   numeric = sample(1:100, 1000, replace = TRUE),
   numeric2 = sample(1:100, 1000, replace = TRUE),
   factor = factor(sample(1:5, 1000, replace = TRUE)),
