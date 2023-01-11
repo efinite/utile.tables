@@ -189,13 +189,13 @@ build_table.data.frame <- function (
 #' library(survival)
 #' library(dplyr)
 #'
-#' data_lung <- lung %>%
-#'   mutate_at(vars(inst, status, sex), as.factor) %>%
+#' data_lung <- lung |>
+#'   mutate_at(vars(inst, status, sex), as.factor) |>
 #'   mutate(status = case_when(status == 1 ~ 0, status == 2 ~ 1))
 #'
 #' fit <- coxph(Surv(time, status) ~ sex + meal.cal, data = data_lung)
 #'
-#' fit %>% build_table(Sex = sex, Calories = meal.cal, .test = 'LRT')
+#' fit |> build_table(Sex = sex, Calories = meal.cal, .test = 'LRT')
 #' @export
 build_table.coxph <- function (
   .object,
@@ -222,7 +222,7 @@ build_table.coxph <- function (
   assignments <- purrr::imap(
     .object$assign[terms], ~ {
       if (.y %in% names(.object$xlevels)) {
-        rlang::set_names(x = c(as.integer(NA), .x), nm = .object$xlevels[[.y]])
+        rlang::set_names(x = c(NA_real_, .x), nm = .object$xlevels[[.y]])
       } else .x
     }
   )
@@ -358,7 +358,6 @@ build_table.coxph <- function (
         if (.show.test) {
 
           cols$Test <- c(cols$Test, '', rep('Wald', length(w[-1])))
-
           cols$Statistic <- c(cols$Statistic, '', estimates[w[-1], 4])
 
         }
@@ -405,13 +404,13 @@ build_table.coxph <- function (
 #' @examples
 #' library(dplyr)
 #'
-#' data_mtcars <- datasets::mtcars %>%
-#'   mutate_at(vars('vs', 'am'), as.logical) %>%
+#' data_mtcars <- datasets::mtcars |>
+#'   mutate_at(vars('vs', 'am'), as.logical) |>
 #'   mutate_at(vars('gear', 'carb', 'cyl'), as.factor)
 #'
 #' fit <- lm(mpg ~ vs + drat + cyl, data = data_mtcars)
 #'
-#' fit %>% build_table()
+#' fit |> build_table()
 #' @export
 build_table.lm <- function (
   .object,
@@ -444,7 +443,7 @@ build_table.lm <- function (
   assignments <- purrr::imap(
     assignments[terms], ~ {
       if (.y %in% names(.object$xlevels)) {
-        rlang::set_names(x = c(as.integer(NA), .x), nm = .object$xlevels[[.y]])
+        rlang::set_names(x = c(NA_real_, .x), nm = .object$xlevels[[.y]])
       } else .x
     }
   )
@@ -524,15 +523,15 @@ build_table.lm <- function (
       # Report test
       if (.show.test) {
 
-          cols$Test <-
-            if ((prefer.tests & x != '(Intercept)') | (has_levels & !single_level)) {
-              if(.test == 'F') 'F-stat' else .test
-            } else 't-value'
+        cols$Test <-
+          if ((prefer.tests & x != '(Intercept)') | (has_levels & !single_level)) {
+            if(.test == 'F') 'F-stat' else .test
+          } else 't-value'
 
-          cols$Statistic <-
-            if ((prefer.tests & x != '(Intercept)') | (has_levels & !single_level)) {
-              tests[match(x, names(assignments)), 1]
-            } else estimates[w, 3]
+        cols$Statistic <-
+          if ((prefer.tests & x != '(Intercept)') | (has_levels & !single_level)) {
+            tests[match(x, names(assignments)), 1]
+          } else estimates[w, 3]
 
       }
 

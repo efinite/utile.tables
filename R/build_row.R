@@ -16,7 +16,7 @@ build_row <- function (x, ...) UseMethod('build_row')
 
 #' @export
 build_row.default <- function (x, label = NULL, ...) {
-  warning('Warning: \'', label, '\' <', class(x), '> not summarizable. Skipping.')
+  warning('Warning: \'', label, '\' <', class(x), '> not supported for summary.')
   NULL
 }
 
@@ -231,7 +231,6 @@ build_row.numeric <- function (
 
   }
 
-
   # Return converted tibble
   dplyr::as_tibble(cols)
 
@@ -437,7 +436,7 @@ build_row.factor <- function (
 
   # Identify x levels, make any NA explicit
   x_levels <- .get_levels(x)
-  if (any(is.na(x))) x_levels <- c(x_levels, "Missing" = NA)
+  if (any(is.na(x))) x_levels <- c(x_levels, "Missing" = NA_character_)
   level_fill <- rep('', length(x_levels))
 
   # Create column object
@@ -459,6 +458,7 @@ build_row.factor <- function (
     )
   }
 
+  # Strata statistics
   if (length(y_levels) > 0) {
     cols <- c(
       cols,
@@ -510,4 +510,3 @@ build_row.factor <- function (
   dplyr::as_tibble(cols)
 
 }
-

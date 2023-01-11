@@ -9,7 +9,7 @@
 #' object.
 #' @seealso \code{\link{build_model.coxph}}
 #' @export
-build_model <- function(.object, ...) { UseMethod('build_model') }
+build_model <- function (.object, ...) { UseMethod('build_model') }
 
 
 #' @export
@@ -48,16 +48,16 @@ build_model.default <- function (.object, ...) {
 #' library(survival)
 #' library(dplyr)
 #'
-#' data_lung <- lung %>%
-#'   mutate_at(vars(inst, status, sex), as.factor) %>%
+#' data_lung <- lung |>
+#'   mutate_at(vars(inst, status, sex), as.factor) |>
 #'   mutate(status = case_when(status == 1 ~ 0, status == 2 ~ 1))
 #'
 #' fit <- coxph(Surv(time, status) ~ 1, data = data_lung)
 #'
 #' # Create a univariate model for each variable
-#' fit %>% build_model(sex, age)
+#' fit |> build_model(sex, age)
 #' @export
-build_model.coxph <- function(
+build_model.coxph <- function (
   .object,
   ...,
   .mv = FALSE,
@@ -100,7 +100,7 @@ build_model.coxph <- function(
   base_formula <- deparse(base_formula)
 
   # build_table factory with pre-specified defaults
-  build_table_ <- function(...) {
+  build_table_ <- function (...) {
     build_table(
       ...,
       .test = .test,
