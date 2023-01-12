@@ -1,17 +1,50 @@
+#' @name build_row
 #' @title Build summary rows
 #' @description Summarize data into a data.frame with row(s). Includes optional
 #' stratification and null hypothesis testing using a factor or logical
 #' variable.
-#' @param x An object of a supported class. See available S3 methods below.
+#' @param x An object of a supported class. See available S3 methods below. The
+#' data to summaries.
+#' @param y A factor or logical. Data to optionally stratify \code{x} by.
+#' @param label A character. The name of the summarized variable.
+#' @param label.stat A logical. Append the summary statistic used to
+#' the label of the summarized row.
+#' @param inverse A logical. For logical data, report frequencies of the
+#' \code{FALSE} values instead.
+#' @param stat A character. Name of the summary statistic to use. Supported options
+#' include the mean ('mean') and median ('median') for continuous data.
+#' @param stat.pct.sign A logical. Paste a percentage symbol with each frequency.
+#' frequency.
+#' @param col.overall A logical. Append a column with the statistic for all data.
+#' If \code{y} is not specified, this parameter is ignored.
+#' @param col.missing A logical. Append a column with counts of missing data.
+#' @param test A character. Name of statistical test to compare groups.
+#' Supported options: [continuous data] ANOVA linear model ('anova'),
+#' Kruskal-Wallis ('kruskal'), and Wilcoxon rank sum ('wilcoxon') tests;
+#' [nominal data] Pearson's Chi-squared Test ('chisq') and Fisher's Exact Test
+#' ('fisher').
+#' @param test.simulate.p A logical. Whether to use Monte Carlo simulation of
+#' the p-value when testing nominal data.
+#' @param col.test A logical. Append a column with the name of the statistical
+#' test used.
+#' @param digits An integer. Number of digits to round to.
+#' @param p.digits An integer. Number of p-value digits to report.
 #' @param ... Arguments passed to the appropriate S3 method.
 #' @return An object of class \code{tbl_df} (tibble) summarizing the provided
 #' data.
 #' @examples
 #' strata <- as.factor(datasets::mtcars$cyl)
 #'
-#' build_row(x = datasets::mtcars, y = strata) # data.frame
+#' # Create a "count" row from a data.frame for a factor
+#' build_row(x = datasets::mtcars, y = strata)
+#'
+#' # Create a row summarizing a numeric by a factor
 #' build_row(x = as.numeric(datasets::mtcars$mpg), y = strata) # numeric
+#'
+#' # Create a row summarizing a logical by a factor
 #' build_row(x = as.logical(datasets::mtcars$vs), y = strata) # logical
+#'
+#' # Create a row summarizing a factor by a factor
 #' build_row(x = as.factor(datasets::mtcars$carb), y = strata) # factor
 #' @seealso
 #' \code{\link{build_row.data.frame}},
@@ -29,27 +62,7 @@ build_row.default <- function (x, label = NULL, ...) {
 }
 
 
-#' @title Summarize a data.frame or tibble
-#' @description Summarize a data.frame (row counts). Optional stratification
-#' using a factor or logical with the same size as the tibble.
-#' @param x An data.frame object. Data to summarize. Must be the same length as
-#' \code{y} (if specified).
-#' @param y A factor or logical. Data to stratify \code{x} by.
-#' @param label A character. The name of the summarized variable.
-#' @param stat.pct.sign A logical. Paste a percentage symbol with each frequency.
-#' frequency.
-#' @param col.overall A logical. Append a column with the statistic for all data.
-#' If \code{y} is not specified, this parameter is ignored.
-#' @param col.missing A logical. Append a column with counts of missing data.
-#' @param col.test A logical. Append a column with the name of the statistical
-#' test used.
-#' @param digits An integer. Number of digits to round to.
-#' @param ... Additional arguments passed to S3 method.
-#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
-#' data.
-#' @examples
-#' # Create a "count" row from a data.frame for a factor
-#' build_row(x = datasets::mtcars, y = as.factor(datasets::mtcars$cyl))
+#' @rdname build_row
 #' @export
 build_row.data.frame <- function (
   x,
@@ -118,39 +131,7 @@ build_row.data.frame <- function (
 }
 
 
-#' @title Summarize numeric data
-#' @description Summarize numeric data in a tibble. Optional stratification and
-#' null hypothesis testing using another factor or logical.
-#' @param x A numeric. Data to summarize. Must be the same length as \code{y}
-#' (if specified).
-#' @param y A factor or logical. Data to stratify \code{x} by.
-#' @param label A character. The name of the summarized variable.
-#' @param label.stat A logical. Append the summary statistic used to
-#' the label of the summarized row.
-#' @param stat A character. Name of the summary statistic to use. Supported options
-#' include the mean ('mean') and median ('median').
-#' @param stat.pct.sign A logical. Paste a percentage symbol with each frequency.
-#' @param col.overall A logical. Append a column with the statistic for all data.
-#' If \code{y} is not specified, this parameter is ignored.
-#' @param col.missing A logical. Append a column with counts of missing data.
-#' @param test A character. Name of statistical test to compare groups.
-#' Supported options include ANOVA linear model ('anova'), Kruskal-Wallis ('kruskal'),
-#' and Wilcoxon rank sum ('wilcoxon') tests.
-#' @param col.test A logical. Append a column with the name of the statistical
-#' test used.
-#' @param digits An integer. Number of digits to round to.
-#' @param p.digits An integer. Number of p-value digits to report.
-#' @param ... Additional arguments passed to S3 method.
-#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
-#' data.
-#' @seealso \code{\link{build_row}}
-#' @examples
-#' # Create a row summarizing a numeric by a factor
-#' build_row(
-#'  x = datasets::mtcars$mpg,
-#'  y = as.factor(datasets::mtcars$cyl),
-#'  label = 'MPG'
-#' )
+#' @rdname build_row
 #' @export
 build_row.numeric <- function (
   x,
@@ -245,41 +226,7 @@ build_row.numeric <- function (
 }
 
 
-#' @title Summarize logical data
-#' @description Summarize logical data in a tibble. Optional stratification and
-#' null hypothesis testing using another factor or logical.
-#' @param x A logical. Data to summarize. Must be the same length as \code{y}
-#' (if specified).
-#' @param y A factor or logical. Data to stratify \code{x} by.
-#' @param label A character. The name of the summarized variable.
-#' @param label.stat A logical. Append the summary statistic used to
-#' the label of the summarized row.
-#' @param inverse A logical. Report frequencies of the \code{FALSE}
-#' values instead.
-#' @param stat.pct.sign A logical. Paste a percentage symbol with each frequency.
-#' @param col.overall A logical. Append a column with the statistic for all data.
-#' If \code{y} is not specified, this parameter is ignored.
-#' @param col.missing A logical. Append a column with counts of missing data.
-#' @param test A character. Name of statistical test to compare groups.
-#' Supported options include Pearson's Chi-squared Test ('chisq') and Fisher's
-#' Exact Test ('fisher').
-#' @param test.simulate.p A logical. Whether to use Monte Carlo simulation of
-#' the p-value when testing nominal data.
-#' @param col.test A logical. Append a column with the name of the statistical
-#' test used.
-#' @param digits An integer. Number of digits to round to.
-#' @param p.digits An integer. Number of p-value digits to report.
-#' @param ... Additional arguments passed to S3 method.
-#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
-#' data.
-#' @seealso \code{\link{build_row}}
-#' @examples
-#' # Create a row summarizing a logical by a factor
-#' build_row(
-#'   x = as.logical(datasets::mtcars$vs),
-#'   y = as.factor(datasets::mtcars$cyl),
-#'   label = 'VS'
-#' )
+#' @rdname build_row
 #' @export
 build_row.logical <- function (
   x,
@@ -376,39 +323,7 @@ build_row.logical <- function (
 }
 
 
-#' @title Summarize factor data
-#' @description Summarize factor data in a tibble. Optional stratification and
-#' null hypothesis testing using another factor or logical.
-#' @param x A factor. Data to summarize. Must be the same length as \code{y}
-#' (if specified).
-#' @param y A factor or logical. Data to stratify \code{x} by.
-#' @param label A character. The name of the summarized variable.
-#' @param label.stat A logical. Append the summary statistic used to
-#' the label of the summarized row.
-#' @param stat.pct.sign A logical. Paste a percentage symbol with each frequency.
-#' @param col.overall A logical. Append a column with the statistic for all data.
-#' If \code{y} is not specified, this parameter is ignored.
-#' @param col.missing A logical. Append a column with counts of missing data.
-#' @param test A character. Name of statistical test to compare groups.
-#' Supported options include Pearson's Chi-squared Test ('chisq') and Fisher's
-#' Exact Test ('fisher').
-#' @param test.simulate.p A logical. Whether to use Monte Carlo simulation of
-#' the p-value when testing nominal data.
-#' @param col.test A logical. Append a column with the name of the statistical
-#' test used.
-#' @param digits An integer. Number of digits to round to.
-#' @param p.digits An integer. Number of p-value digits to report.
-#' @param ... Additional arguments passed to S3 method.
-#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
-#' data.
-#' @seealso \code{\link{build_row}}
-#' @examples
-#' # Create a row summarizing a factor by a factor
-#' build_row(
-#'  x = as.factor(datasets::mtcars$carb),
-#'  y = as.factor(datasets::mtcars$cyl),
-#'  label = 'Carb'
-#' )
+#' @rdname build_row
 #' @export
 build_row.factor <- function (
   x,
