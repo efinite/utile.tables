@@ -172,11 +172,12 @@ build_table.data.frame <- function (
 #' \code{\link[tidyselect:select_helpers]{tidyselect helpers}}. If left empty,
 #' all terms are summarized.
 #' @param .test A character. The name of the
-#' \code{\link[stats:add1]{stats::drop1}} test to use with the model.
-#' @param .show.test A logical. Append a columns for the test and accompanying
+#' \code{\link[stats:add1]{stats::drop1}} test to use with the model. Supported
+#' tests include Wald's Test ('Wald') and Likelihood Ratio Test ('LRT').
+#' @param .col.test A logical. Append a columns for the test and accompanying
 #' statistic used to derive the p-value.
 #' @param .level A double. The confidence level required.
-#' @param .percent.sign A logical. Paste a percent symbol after all reported
+#' @param .stat.pct.sign A logical. Paste a percent symbol after all reported
 #' frequencies.
 #' @param .digits An integer. The number of digits to round numbers to.
 #' @param .p.digits An integer. The number of p-value digits to report. Note
@@ -201,9 +202,9 @@ build_table.coxph <- function (
   .object,
   ...,
   .test = c('LRT', 'Wald'),
-  .show.test = FALSE,
+  .col.test = FALSE,
   .level = 0.95,
-  .percent.sign = TRUE,
+  .stat.pct.sign = TRUE,
   .digits = 1,
   .p.digits = 4
 ) {
@@ -310,7 +311,7 @@ build_table.coxph <- function (
       } else estimates[w, 5]
 
       # Report test
-      if (.show.test) {
+      if (.col.test) {
 
         cols$Test <-
           if ((prefer.tests & .test == 'LRT') | (has_levels & !single_level)) {
@@ -355,7 +356,7 @@ build_table.coxph <- function (
         cols$p <- c(cols$p, '', estimates[w[-1], 5])
 
         # Report test
-        if (.show.test) {
+        if (.col.test) {
 
           cols$Test <- c(cols$Test, '', rep('Wald', length(w[-1])))
           cols$Statistic <- c(cols$Statistic, '', estimates[w[-1], 4])
@@ -388,11 +389,12 @@ build_table.coxph <- function (
 #' \code{\link[tidyselect:select_helpers]{tidyselect helpers}}. If left empty,
 #' all terms are summarized.
 #' @param .test A character. The name of the
-#' \code{\link[stats:add1]{stats::drop1}} test to use with the model.
-#' @param .show.test A logical. Append a columns for the test and accompanying
+#' \code{\link[stats:add1]{stats::drop1}} test to use with the model. Supported
+#' options include the F-Test ('F') and Chi-squared Test ('Chisq').
+#' @param .col.test A logical. Append a columns for the test and accompanying
 #' statistic used to derive the p-value.
 #' @param .level A double. The confidence level required.
-#' @param .percent.sign A logical. Paste a percent symbol after all reported
+#' @param .stat.pct.sign A logical. Paste a percent symbol after all reported
 #' frequencies.
 #' @param .digits An integer. The number of digits to round numbers to.
 #' @param .p.digits An integer. The number of p-value digits to report. Note
@@ -416,9 +418,9 @@ build_table.lm <- function (
   .object,
   ...,
   .test = c('F', 'Chisq'),
-  .show.test = FALSE,
+  .col.test = FALSE,
   .level = 0.95,
-  .percent.sign = TRUE,
+  .stat.pct.sign = TRUE,
   .digits = 1,
   .p.digits = 4
 ) {
@@ -521,7 +523,7 @@ build_table.lm <- function (
       } else estimates[w, 4]
 
       # Report test
-      if (.show.test) {
+      if (.col.test) {
 
         cols$Test <-
           if ((prefer.tests & x != '(Intercept)') | (has_levels & !single_level)) {
@@ -562,7 +564,7 @@ build_table.lm <- function (
         cols$p <- c(cols$p, '', estimates[w[-1], 4])
 
         # Report test
-        if (.show.test) {
+        if (.col.test) {
           cols$Test <- c(cols$Test, '',  rep('t-value', length(w[-1])))
           cols$Statistic <- c(cols$Statistic, '', estimates[w[-1], 3])
         }

@@ -32,10 +32,10 @@ build_model.default <- function (.object, ...) {
 #' FALSE, all terms are fit in their own univariate models.
 #' @param .test A character. The name of a \code{\link[stats:add1]{stats::drop1}}
 #' test to use with the model.
-#' @param .show.test A logical. Append a columns for the test and accompanying
+#' @param .col.test A logical. Append a columns for the test and accompanying
 #' statistic used to derive the p-value.
 #' @param .level A double. The confidence level required.
-#' @param .percent.sign A logical. Paste a percent symbol after all reported
+#' @param .stat.pct.sign A logical. Paste a percent symbol after all reported
 #' frequencies.
 #' @param .digits An integer. The number of digits to round numbers to.
 #' @param .p.digits An integer. The number of p-value digits to report. Note
@@ -62,9 +62,9 @@ build_model.coxph <- function (
   ...,
   .mv = FALSE,
   .test = c('LRT', 'Wald'),
-  .show.test = FALSE,
+  .col.test = FALSE,
   .level = 0.95,
-  .percent.sign = TRUE,
+  .stat.pct.sign = TRUE,
   .digits = 1,
   .p.digits = 4
 ) {
@@ -104,9 +104,9 @@ build_model.coxph <- function (
     build_table(
       ...,
       .test = .test,
-      .show.test = .show.test,
+      .col.test = .col.test,
       .level = .level,
-      .percent.sign = .percent.sign,
+      .stat.pct.sign = .stat.pct.sign,
       .digits = .digits,
       .p.digits = .p.digits
     )
