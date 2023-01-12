@@ -8,9 +8,9 @@
   .object,
   ...,
   .test = c("LRT", "Wald"),
-  .show.test = FALSE,
+  .col.test = FALSE,
   .level = 0.95,
-  .percent.sign = TRUE,
+  .stat.pct.sign = TRUE,
   .digits = 1,
   .p.digits = 4
 )
@@ -24,14 +24,15 @@ columns in the data.frame. May be specified using
 all terms are summarized.}
 
 \item{.test}{A character. The name of the
-\code{\link[stats:add1]{stats::drop1}} test to use with the model.}
+\code{\link[stats:add1]{stats::drop1}} test to use with the model. Supported
+tests include Wald's Test ('Wald') and Likelihood Ratio Test ('LRT').}
 
-\item{.show.test}{A logical. Append a columns for the test and accompanying
+\item{.col.test}{A logical. Append a columns for the test and accompanying
 statistic used to derive the p-value.}
 
 \item{.level}{A double. The confidence level required.}
 
-\item{.percent.sign}{A logical. Paste a percent symbol after all reported
+\item{.stat.pct.sign}{A logical. Paste a percent symbol after all reported
 frequencies.}
 
 \item{.digits}{An integer. The number of digits to round numbers to.}

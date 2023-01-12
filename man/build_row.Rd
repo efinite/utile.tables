@@ -2,14 +2,117 @@
 % Please edit documentation in R/build_row.R
 \name{build_row}
 \alias{build_row}
+\alias{build_row.data.frame}
+\alias{build_row.numeric}
+\alias{build_row.logical}
+\alias{build_row.factor}
 \title{Build summary rows}
 \usage{
 build_row(x, ...)
+
+\method{build_row}{data.frame}(
+  x,
+  y = NA_real_,
+  label = "n(\%)",
+  stat.pct.sign = FALSE,
+  col.overall = TRUE,
+  col.missing = FALSE,
+  col.test = FALSE,
+  digits = 1,
+  ...
+)
+
+\method{build_row}{numeric}(
+  x,
+  y = NA_real_,
+  label = "< variable >",
+  label.stat = TRUE,
+  stat = c("mean", "median"),
+  stat.pct.sign = FALSE,
+  col.overall = TRUE,
+  col.missing = FALSE,
+  test = c("anova", "kruskal", "wilcoxon"),
+  col.test = FALSE,
+  digits = 1,
+  p.digits = 4,
+  ...
+)
+
+\method{build_row}{logical}(
+  x,
+  y = NA_real_,
+  label = "< variable >",
+  label.stat = TRUE,
+  inverse = FALSE,
+  stat.pct.sign = FALSE,
+  col.overall = TRUE,
+  col.missing = FALSE,
+  test = c("chisq", "fisher"),
+  test.simulate.p = FALSE,
+  col.test = FALSE,
+  digits = 1,
+  p.digits = 4,
+  ...
+)
+
+\method{build_row}{factor}(
+  x,
+  y = NA_real_,
+  label = "< variable >",
+  label.stat = TRUE,
+  stat.pct.sign = FALSE,
+  col.overall = TRUE,
+  col.missing = FALSE,
+  test = c("chisq", "fisher"),
+  test.simulate.p = FALSE,
+  col.test = FALSE,
+  digits = 1,
+  p.digits = 4,
+  ...
+)
 }
 \arguments{
-\item{x}{An object of a supported class. See available S3 methods below.}
+\item{x}{An object of a supported class. See available S3 methods below. The
+data to summaries.}
 
 \item{...}{Arguments passed to the appropriate S3 method.}
+
+\item{y}{A factor or logical. Data to optionally stratify \code{x} by.}
+
+\item{label}{A character. The name of the summarized variable.}
+
+\item{stat.pct.sign}{A logical. Paste a percentage symbol with each frequency.
+frequency.}
+
+\item{col.overall}{A logical. Append a column with the statistic for all data.
+If \code{y} is not specified, this parameter is ignored.}
+
+\item{col.missing}{A logical. Append a column with counts of missing data.}
+
+\item{col.test}{A logical. Append a column with the name of the statistical
+test used.}
+
+\item{digits}{An integer. Number of digits to round to.}
+
+\item{label.stat}{A logical. Append the summary statistic used to
+the label of the summarized row.}
+
+\item{stat}{A character. Name of the summary statistic to use. Supported options
+include the mean ('mean') and median ('median') for continuous data.}
+
+\item{test}{A character. Name of statistical test to compare groups.
+Supported options: [continuous data] ANOVA linear model ('anova'),
+Kruskal-Wallis ('kruskal'), and Wilcoxon rank sum ('wilcoxon') tests;
+[nominal data] Pearson's Chi-squared Test ('chisq') and Fisher's Exact Test
+('fisher').}
+
+\item{p.digits}{An integer. Number of p-value digits to report.}
+
+\item{inverse}{A logical. For logical data, report frequencies of the
+\code{FALSE} values instead.}
+
+\item{test.simulate.p}{A logical. Whether to use Monte Carlo simulation of
+the p-value when testing nominal data.}
 }
 \value{
 An object of class \code{tbl_df} (tibble) summarizing the provided
@@ -23,9 +126,16 @@ variable.
 \examples{
 strata <- as.factor(datasets::mtcars$cyl)
 
-build_row(x = datasets::mtcars, y = strata) # data.frame
+# Create a "count" row from a data.frame for a factor
+build_row(x = datasets::mtcars, y = strata)
+
+# Create a row summarizing a numeric by a factor
 build_row(x = as.numeric(datasets::mtcars$mpg), y = strata) # numeric
+
+# Create a row summarizing a logical by a factor
 build_row(x = as.logical(datasets::mtcars$vs), y = strata) # logical
+
+# Create a row summarizing a factor by a factor
 build_row(x = as.factor(datasets::mtcars$carb), y = strata) # factor
 }
 \seealso{
