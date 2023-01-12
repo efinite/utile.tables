@@ -1,0 +1,17 @@
+url: ~
+template:
+  bootstrap: 5
+reference:
+  - title: "Build Table Rows"
+    contents:
+      - build_row
+  - title: "Build Tables"
+    contents:
+      - build_table
+      - build_table.data.frame
+      - build_table.coxph
+      - build_table.lm
+  - title: "Build Models"
+    contents:
+      - build_model
+      - build_model.coxph
