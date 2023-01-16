@@ -18,6 +18,9 @@ transparency.
 * New `col.overall` argument in `build_row()` to allow for removal of the "Overall"
 column.
 
+* `build_row()` labels are now more flexible and can accommodate no input more
+gracefully.
+
 ## Fixes & Minor Changes
 
 * Fixes for several `build_row()` counting errors which would occur in certain

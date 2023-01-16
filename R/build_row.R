@@ -3,26 +3,24 @@
 #' @description Summarize data into a data.frame with row(s). Includes optional
 #' stratification and null hypothesis testing using a factor or logical
 #' variable.
-#' @param x An object of a supported class. See available S3 methods below. The
-#' data to summaries.
+#' @param x A data.frame, numeric, factor, or logical. Data to summarize.
 #' @param y A factor or logical. Data to optionally stratify \code{x} by.
-#' @param label A character. The name of the summarized variable.
-#' @param label.stat A logical. Append the summary statistic used to
-#' the label of the summarized row.
+#' @param label A character. A label for the summarized data.
+#' @param label.stat A logical. Append the summary statistic used to the label.
 #' @param inverse A logical. For logical data, report frequencies of the
 #' \code{FALSE} values instead.
 #' @param stat A character. Name of the summary statistic to use. Supported options
-#' include the mean ('mean') and median ('median') for continuous data.
+#' include the mean (\code{'mean'}) and median (\code{'median'}) for continuous data.
 #' @param stat.pct.sign A logical. Paste a percentage symbol with each frequency.
 #' frequency.
 #' @param col.overall A logical. Append a column with the statistic for all data.
 #' If \code{y} is not specified, this parameter is ignored.
 #' @param col.missing A logical. Append a column with counts of missing data.
 #' @param test A character. Name of statistical test to compare groups.
-#' Supported options: [continuous data] ANOVA linear model ('anova'),
-#' Kruskal-Wallis ('kruskal'), and Wilcoxon rank sum ('wilcoxon') tests;
-#' [nominal data] Pearson's Chi-squared Test ('chisq') and Fisher's Exact Test
-#' ('fisher').
+#' Supported options: [continuous data] ANOVA linear model (\code{'anova'}),
+#' Kruskal-Wallis (\code{'kruskal'}), and Wilcoxon rank sum (\code{'wilcoxon'}) tests;
+#' [nominal data] Pearson's Chi-squared Test (\code{'chisq'}) and Fisher's Exact Test
+#' (\code{'fisher'}).
 #' @param test.simulate.p A logical. Whether to use Monte Carlo simulation of
 #' the p-value when testing nominal data.
 #' @param col.test A logical. Append a column with the name of the statistical
@@ -39,20 +37,18 @@
 #' build_row(x = datasets::mtcars, y = strata)
 #'
 #' # Create a row summarizing a numeric by a factor
-#' build_row(x = as.numeric(datasets::mtcars$mpg), y = strata) # numeric
+#' build_row(label = 'MPG', x = as.numeric(datasets::mtcars$mpg), y = strata)
 #'
 #' # Create a row summarizing a logical by a factor
-#' build_row(x = as.logical(datasets::mtcars$vs), y = strata) # logical
+#' build_row(label = 'VS', x = as.logical(datasets::mtcars$vs), y = strata)
 #'
 #' # Create a row summarizing a factor by a factor
-#' build_row(x = as.factor(datasets::mtcars$carb), y = strata) # factor
-#' @seealso
-#' \code{\link{build_row.data.frame}},
-#' \code{\link{build_row.numeric}},
-#' \code{\link{build_row.logical}},
-#' \code{\link{build_row.factor}}
+#' build_row(label = 'Carb', x = as.factor(datasets::mtcars$carb), y = strata)
 #' @export
-build_row <- function (x, ...) UseMethod('build_row')
+build_row <- function (
+    x,
+    ...
+  ) UseMethod('build_row')
 
 
 #' @export
@@ -67,7 +63,8 @@ build_row.default <- function (x, label = NULL, ...) {
 build_row.data.frame <- function (
   x,
   y = NA_real_,
-  label = 'n(%)',
+  label = NULL,
+  label.stat = TRUE,
   stat.pct.sign = FALSE,
   col.overall = TRUE,
   col.missing = FALSE,
@@ -96,7 +93,7 @@ build_row.data.frame <- function (
   cols <- list()
 
   # Variable label
-  cols$Variable <- label
+  cols$Variable <- paste(c(label, if (label.stat) 'n(%)'), collapse = ', ')
 
   # Overall count
   if (col.overall || length(y_levels) == 0) {
@@ -136,7 +133,7 @@ build_row.data.frame <- function (
 build_row.numeric <- function (
   x,
   y = NA_real_,
-  label = '< variable >',
+  label = NULL,
   label.stat = TRUE,
   stat = c('mean', 'median'),
   stat.pct.sign = FALSE,
@@ -175,12 +172,15 @@ build_row.numeric <- function (
   cols <- list()
 
   # Variable label +/- statistic name
-  cols$Variable <- paste0(
-    label,
-    if (label.stat) {
-      if (stat == 'median') ', median[IQR]'
-      else ', mean\u00B1SD'
-    }
+  cols$Variable <- paste(
+    c(
+      label,
+      if (label.stat) {
+        if (stat == 'median') 'median[IQR]'
+        else 'mean\u00B1SD'
+      }
+    ),
+    collapse = ', '
   )
 
   # Summary statistic: Overall
@@ -231,7 +231,7 @@ build_row.numeric <- function (
 build_row.logical <- function (
   x,
   y = NA_real_,
-  label = '< variable >',
+  label = NULL,
   label.stat = TRUE,
   inverse = FALSE,
   stat.pct.sign = FALSE,
@@ -268,10 +268,13 @@ build_row.logical <- function (
   cols <- list()
 
   # Variable label +/- statistic name
-  cols$Variable <- paste0(
-    label,
-    if (inverse) ', no',
-    if (label.stat) { ', n(%)' }
+  cols$Variable <- paste(
+    c(
+      label,
+      if (inverse) 'no',
+      if (label.stat) 'n(%)'
+    ),
+    collapse = ', '
   )
 
   # Overall statistic
@@ -328,7 +331,7 @@ build_row.logical <- function (
 build_row.factor <- function (
   x,
   y = NA_real_,
-  label = '< variable >',
+  label = NULL,
   label.stat = TRUE,
   stat.pct.sign = FALSE,
   col.overall = TRUE,
@@ -367,7 +370,7 @@ build_row.factor <- function (
 
   # Variable labels
   cols$Variable <- c(
-    paste0(label, if (label.stat) { ', n(%)' }),
+    paste(c(label, if (label.stat) 'n(%)'), collapse = ', '),
     paste0('  ', names(x_levels))
   )
 

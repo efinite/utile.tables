@@ -92,7 +92,7 @@ df <- data.frame(
 build_table(df, .by = strata)
 
 # Summarize & rename selected columns
-build_table(df, Numeric = numeric2, Factor = factor, .by = strata)
+build_table(df, numeric2, factor, .by = strata)
 }
 \seealso{
 \code{\link{build_table}}
