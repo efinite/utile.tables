@@ -3,9 +3,9 @@
 [![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/utile.tables)](https://CRAN.R-project.org/package=utile.tables)
 
 ## Overview
-Methods to make building customized, ready-to-export tables for publication purposes.
+Methods for building customized, ready-to-export tables for publication purposes.
 
-## Functions
-- `build_table()`: Summarizes various types of data objects as tables.
-- `build_row()`: Generates a summarizing table for a factor, logical, and numeric vector.
-- `build_model()`: Given a base model object, build new models with specified columns and summarize their results.
+## Key Functions
+- `build_table()`: Generate a summary table for a data object, such as a data.frame.
+- `build_row()`: Summarize a factor, logical, and numeric vector.
+- `build_model()`: Build and summarize varying models based on a model object.

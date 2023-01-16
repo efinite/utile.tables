@@ -44,7 +44,58 @@
       <small>Source: <a href="https://github.com/efinite/utile.tables/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
-  </main></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.2" id="utiletables-022">utile.tables 0.2.2<a class="anchor" aria-label="anchor" href="#utiletables-022"></a></h2><p class="text-muted">CRAN release: 2022-11-20</p>
+<ul><li>Fixed CRAN LazyData error</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.1" id="utiletables-021">utile.tables 0.2.1<a class="anchor" aria-label="anchor" href="#utiletables-021"></a></h2><p class="text-muted">CRAN release: 2020-06-14</p>
+<ul><li><p>Removed methods dependency, opting for base R’s <code><a href="https://rdrr.io/r/base/match.call.html" class="external-link">match.call()</a></code>.</p></li>
+<li><p>Micro-optimizations to performance of the <code><a href="../reference/build_row.html">build_row()</a></code> and <code><a href="../reference/build_table.html">build_table()</a></code> functions.</p></li>
+<li><p>Fixed character casting issue in <code><a href="../reference/build_table.coxph.html">build_table.coxph()</a></code> that would cause p-value rounding to fail when the p-value was in scientific notation.</p></li>
+<li><p>Fixed broken filter in <code><a href="../reference/build_model.html">build_model()</a></code> that was not removing existing model terms from the list of interest.</p></li>
+<li><p>Added re-exports for the tidyselect helpers.</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="utiletables-020">utile.tables 0.2.0<a class="anchor" aria-label="anchor" href="#utiletables-020"></a></h2><p class="text-muted">CRAN release: 2020-05-01</p>
+<ul><li><p>Replaced <code>build_event_table()</code> &amp; <code>build_event_rows()</code> with <code><a href="../reference/build_model.html">build_model()</a></code> which has an S3 method for coxph models and uses tidyselect syntax. Plain formulas and survfit objects are no longer supported.</p></li>
+<li><p><code><a href="../reference/build_table.html">build_table()</a></code> was converted to an S3 method that now uses tidyselect syntax which is far easier to use. The data.frame method now works more than 7.5x faster than the prior version. This function is the new home of methods from <code>utile.tools::tabulate_model()</code>.</p></li>
+<li><p><code><a href="../reference/build_row.html">build_row()</a></code> was replaced with an S3 method that directly exposes the previously internal functions for working with raw factor, logical, or numeric data.</p></li>
+<li><p>Support for <code>utile.tools::</code> version 0.2.5 was added.</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.8" id="utiletables-018">utile.tables 0.1.8<a class="anchor" aria-label="anchor" href="#utiletables-018"></a></h2><p class="text-muted">CRAN release: 2019-12-02</p>
+<ul><li>Upgraded backend functions to be compatible with <code>utile.tools::</code> version 0.2.3</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.7" id="utiletables-017">utile.tables 0.1.7<a class="anchor" aria-label="anchor" href="#utiletables-017"></a></h2><p class="text-muted">CRAN release: 2019-10-19</p>
+<ul><li><p>Added graceful handling of NULL table data to <code>build_event_row()</code>.</p></li>
+<li><p>Tables created with <code>build_event_</code> now return a unified hazard ratio and confidence interval column for behavior more consistent with <code><a href="../reference/build_row.html">build_row()</a></code>/<code><a href="../reference/build_table.html">build_table()</a></code>.</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.6" id="utiletables-016">utile.tables 0.1.6<a class="anchor" aria-label="anchor" href="#utiletables-016"></a></h2><p class="text-muted">CRAN release: 2019-09-19</p>
+<ul><li>Fixed logic in <code>build_event_row_()</code> to return the reference table when a parameter is skipped.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.5" id="utiletables-015">utile.tables 0.1.5<a class="anchor" aria-label="anchor" href="#utiletables-015"></a></h2><p class="text-muted">CRAN release: 2019-07-01</p>
+<ul><li><p>Addressed <code><a href="https://tibble.tidyverse.org/reference/is.tibble.html" class="external-link">tibble::is.tibble()</a></code> depreciation.</p></li>
+<li>
+<p>Backend function changes:</p>
+<ul><li>
+<code>.row_coxph()</code>: Rewrote to work with <code>utile.tools::tabulate_model()</code> version 0.2.0.</li>
+<li>
+<code>.row_</code> Functions
+<ul><li>Rewrote to reduce redundancy and improve efficiency.</li>
+<li>Removed redundant code from calls of <code><a href="https://rdrr.io/pkg/utile.tools/man/paste_freq.html" class="external-link">utile.tools::paste_freq()</a></code>.</li>
+</ul></li>
+</ul></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.4" id="utiletables-014">utile.tables 0.1.4<a class="anchor" aria-label="anchor" href="#utiletables-014"></a></h2><p class="text-muted">CRAN release: 2019-06-04</p>
+<ul><li>First public release</li>
+</ul></div>
+  </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
