@@ -33,6 +33,8 @@ breaking changes to the `utile.tools::test_hypothesis()` function.
 concatenated with `purrr::list_rbind()`. As a result, `purrr` version 1.0.0 or
 greater is now required.
 
+* Added a `pkgdown` website.
+
 
 # utile.tables 0.2.2
 
