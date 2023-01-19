@@ -25,11 +25,13 @@
 #' the p-value when testing nominal data.
 #' @param col.test A logical. Append a column with the name of the statistical
 #' test used.
+#' @param return.list A logical. Whether the object returned should alternatively
+#' be a list.
 #' @param digits An integer. Number of digits to round to.
 #' @param p.digits An integer. Number of p-value digits to report.
 #' @param ... Arguments passed to the appropriate S3 method.
-#' @return An object of class \code{tbl_df} (tibble) summarizing the provided
-#' data.
+#' @return Either an object of class \code{tbl_df} (tibble) or \code{list}
+#' summarizing the provided data.
 #' @examples
 #' strata <- as.factor(datasets::mtcars$cyl)
 #'
@@ -69,6 +71,7 @@ build_row.data.frame <- function (
   col.overall = TRUE,
   col.missing = FALSE,
   col.test = FALSE,
+  return.list = FALSE,
   digits = 1,
   ...
 ) {
@@ -122,8 +125,9 @@ build_row.data.frame <- function (
   # Hypothesis testing columns
   if (length(y_levels) > 1) cols[c('p', if (col.test) 'Test')] <- ''
 
-  # Return converted tibble
-  dplyr::as_tibble(cols)
+  # Return data
+  if (!return.list) cols <- dplyr::as_tibble(cols)
+  cols
 
 }
 
@@ -141,6 +145,7 @@ build_row.numeric <- function (
   col.missing = FALSE,
   test = c('anova', 'kruskal', 'wilcoxon'),
   col.test = FALSE,
+  return.list = FALSE,
   digits = 1,
   p.digits = 4,
   ...
@@ -220,8 +225,9 @@ build_row.numeric <- function (
 
   }
 
-  # Return converted tibble
-  dplyr::as_tibble(cols)
+  # Return data
+  if (!return.list) cols <- dplyr::as_tibble(cols)
+  cols
 
 }
 
@@ -240,6 +246,7 @@ build_row.logical <- function (
   test = c('chisq', 'fisher'),
   test.simulate.p = FALSE,
   col.test = FALSE,
+  return.list = FALSE,
   digits = 1,
   p.digits = 4,
   ...
@@ -320,8 +327,9 @@ build_row.logical <- function (
 
   }
 
-  # Return converted tibble
-  dplyr::as_tibble(cols)
+  # Return data
+  if (!return.list) cols <- dplyr::as_tibble(cols)
+  cols
 
 }
 
@@ -339,6 +347,7 @@ build_row.factor <- function (
   test = c('chisq', 'fisher'),
   test.simulate.p = FALSE,
   col.test = FALSE,
+  return.list = FALSE,
   digits = 1,
   p.digits = 4,
   ...
@@ -432,7 +441,8 @@ build_row.factor <- function (
 
   }
 
-  # Return converted tibble
-  dplyr::as_tibble(cols)
+  # Return data
+  if (!return.list) cols <- dplyr::as_tibble(cols)
+  cols
 
 }
