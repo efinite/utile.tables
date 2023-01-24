@@ -46,21 +46,21 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="utiletables-030">utile.tables 0.3.0<a class="anchor" aria-label="anchor" href="#utiletables-030"></a></h2>
-<div class="section level3">
-<h3 id="breaking-changes-0-3-0">Breaking Changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-3-0"></a></h3>
+<div class="section level4">
+<h4 id="breaking-changes-0-3-0">Breaking Changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-3-0"></a></h4>
 <ul><li><p><code><a href="../reference/build_row.html">build_row()</a></code> S3 methods now handle and display <code>NA</code> data differently. Missing data are now made explicit for factor data to ensure counts sum appropriately. The <code>na.rm</code> parameter has also been removed to reduce ambiguity.</p></li>
 <li><p>Arguments for nearly all functions have been renamed to make their effects clearer.</p></li>
 <li><p>In all functions, the <code>parametric</code> argument has been replaced by the <code>stat</code> and <code>test</code> arguments to allow manual selection of tests and provide greater transparency.</p></li>
 </ul></div>
-<div class="section level3">
-<h3 id="new-features-0-3-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-0-3-0"></a></h3>
+<div class="section level4">
+<h4 id="new-features-0-3-0">New Features<a class="anchor" aria-label="anchor" href="#new-features-0-3-0"></a></h4>
 <ul><li><p>New <code>col.overall</code> argument in <code><a href="../reference/build_row.html">build_row()</a></code> to allow for removal of the “Overall” column.</p></li>
 <li><p><code><a href="../reference/build_row.html">build_row()</a></code> labels are now more flexible and can accommodate no input more gracefully.</p></li>
 </ul></div>
-<div class="section level3">
-<h3 id="fixes--minor-changes-0-3-0">Fixes &amp; Minor Changes<a class="anchor" aria-label="anchor" href="#fixes--minor-changes-0-3-0"></a></h3>
+<div class="section level4">
+<h4 id="fixes--minor-changes-0-3-0">Fixes &amp; Minor Changes<a class="anchor" aria-label="anchor" href="#fixes--minor-changes-0-3-0"></a></h4>
 <ul><li><p>Fixes for several <code><a href="../reference/build_row.html">build_row()</a></code> counting errors which would occur in certain circumstances when <code>NA</code> values were present in input data.</p></li>
-<li><p>Support for and requirement of <code>utile.tools</code> version 0.3.0 which introduced breaking changes to the <code><a href="https://rdrr.io/pkg/utile.tools/man/test_hypothesis.html" class="external-link">utile.tools::test_hypothesis()</a></code> function.</p></li>
+<li><p>Support for and requirement of <code>utile.tools</code> version 0.3.0 which introduced breaking changes to the <code><a href="https://efinite.github.io/utile.tools/reference/test_hypothesis.html" class="external-link">utile.tools::test_hypothesis()</a></code> function.</p></li>
 <li><p>Preemptive removal of the recently superseded <code><a href="https://purrr.tidyverse.org/reference/map_dfr.html" class="external-link">purrr::imap_dfr()</a></code>. Lists are now concatenated with <code><a href="https://purrr.tidyverse.org/reference/list_c.html" class="external-link">purrr::list_rbind()</a></code>. As a result, <code>purrr</code> version 1.0.0 or greater is now required.</p></li>
 <li><p>Added a <code>pkgdown</code> website.</p></li>
 </ul></div>
@@ -107,7 +107,7 @@
 <li>
 <code>.row_</code> Functions
 <ul><li>Rewrote to reduce redundancy and improve efficiency.</li>
-<li>Removed redundant code from calls of <code><a href="https://rdrr.io/pkg/utile.tools/man/paste_freq.html" class="external-link">utile.tools::paste_freq()</a></code>.</li>
+<li>Removed redundant code from calls of <code><a href="https://efinite.github.io/utile.tools/reference/paste_freq.html" class="external-link">utile.tools::paste_freq()</a></code>.</li>
 </ul></li>
 </ul></li>
 </ul></div>

@@ -1,6 +1,6 @@
 # utile.tables 0.3.0
 
-## Breaking Changes
+### Breaking Changes
 
 * `build_row()` S3 methods now handle and display `NA` data differently. Missing
 data are now made explicit for factor data to ensure counts sum appropriately.
@@ -13,7 +13,7 @@ effects clearer.
 `stat` and `test` arguments to allow manual selection of tests and provide greater
 transparency.
 
-## New Features
+### New Features
 
 * New `col.overall` argument in `build_row()` to allow for removal of the "Overall"
 column.
@@ -21,7 +21,7 @@ column.
 * `build_row()` labels are now more flexible and can accommodate no input more
 gracefully.
 
-## Fixes & Minor Changes
+### Fixes & Minor Changes
 
 * Fixes for several `build_row()` counting errors which would occur in certain
 circumstances when `NA` values were present in input data.
