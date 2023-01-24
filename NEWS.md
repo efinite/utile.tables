@@ -1,4 +1,4 @@
-# utile.tables (Development)
+# utile.tables 0.3.0
 
 ## Breaking Changes
 
