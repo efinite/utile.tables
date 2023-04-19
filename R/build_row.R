@@ -123,7 +123,7 @@ build_row.data.frame <- function (
   if (length(y_levels) > 1) cols[c('p', if (col.test) 'Test')] <- ''
 
   # Return converted tibble
-  dplyr::as_tibble(cols)
+  tibble::as_tibble(cols)
 
 }
 
@@ -221,7 +221,7 @@ build_row.numeric <- function (
   }
 
   # Return converted tibble
-  dplyr::as_tibble(cols)
+  tibble::as_tibble(cols)
 
 }
 
@@ -321,7 +321,7 @@ build_row.logical <- function (
   }
 
   # Return converted tibble
-  dplyr::as_tibble(cols)
+  tibble::as_tibble(cols)
 
 }
 
@@ -433,6 +433,6 @@ build_row.factor <- function (
   }
 
   # Return converted tibble
-  dplyr::as_tibble(cols)
+  tibble::as_tibble(cols)
 
 }

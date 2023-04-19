@@ -1,3 +1,9 @@
+# utile.tables 0.3.1
+
+### Fixes & Minor Changes 
+
+* Moved `dplyr` to suggests and replaced with underlying dependencies `vctrs` & `tibble`.
+
 # utile.tables 0.3.0
 
 ### Breaking Changes

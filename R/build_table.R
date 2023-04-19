@@ -141,7 +141,7 @@ build_table.data.frame <- function (
   }
 
   # Create table
-  table <- dplyr::bind_rows(
+  table <- vctrs::vec_rbind(
     build_row_(x = .object),
     purrr::list_rbind(
       purrr::imap(
@@ -366,7 +366,7 @@ build_table.coxph <- function (
       }
 
       # Return as df (better performance)
-      dplyr::as_tibble(cols)
+      tibble::as_tibble(cols)
 
     }
   )
@@ -572,7 +572,7 @@ build_table.lm <- function (
       }
 
       # Return data
-      dplyr::as_tibble(cols)
+      tibble::as_tibble(cols)
 
     }
   )
